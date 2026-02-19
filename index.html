@@ -5,241 +5,274 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BSKF - কুপতলা আলোকিত সমাজ ফাউন্ডেশন</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&family=Playfair+Display:wght@700;900&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f8fafc; color: #1e293b; }
-        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .premium-card { background: white; border-radius: 2.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.7); transition: transform 0.3s ease; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f1f5f9; color: #1e293b; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .premium-card { background: white; border-radius: 2rem; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03); transition: all 0.3s ease; }
         .section-hide { display: none; }
-        .btn-premium { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2); }
+        .btn-premium { background: linear-gradient(135deg, #059669, #047857); color: white; box-shadow: 0 10px 20px rgba(5, 150, 105, 0.2); }
         
-        /* ─── Modern Grid Certificate ─── */
+        /* --- ULTRA PREMIUM CERTIFICATE STYLES --- */
         #certificateTemplate {
-            width: 1000px;
-            height: 700px;
-            position: fixed;
-            left: -9999px;
-            font-family: 'Hind Siliguri', sans-serif;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 0 60px rgba(0,0,0,0.12);
+            width: 1200px; height: 850px; padding: 0; background: #fff; position: fixed; left: -9999px;
+            font-family: 'Montserrat', sans-serif; overflow: hidden; color: #1a2e35;
         }
+        .cert-outer-border { height: 100%; width: 100%; background: #064e3b; padding: 25px; position: relative; box-sizing: border-box; }
+        .cert-inner-border { 
+            height: 100%; width: 100%; background: #fff; border: 4px solid #d4af37; 
+            position: relative; display: flex; flex-direction: column; align-items: center; padding: 60px;
+            background-image: radial-gradient(#d4af37 0.5px, transparent 0.5px);
+            background-size: 20px 20px; /* The "Griddy" Pattern */
+        }
+        .cert-overlay-pattern {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/pinstriped-suit.png');
+            opacity: 0.03; pointer-events: none;
+        }
+        .cert-corner { position: absolute; width: 150px; height: 150px; border: 10px solid #d4af37; }
+        .corner-tl { top: -5px; left: -5px; border-right: 0; border-bottom: 0; }
+        .corner-tr { top: -5px; right: -5px; border-left: 0; border-bottom: 0; }
+        .corner-bl { bottom: -5px; left: -5px; border-right: 0; border-top: 0; }
+        .corner-br { bottom: -5px; right: -5px; border-left: 0; border-top: 0; }
 
-        .cert-grid-container {
-            height: 100%;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+        .cert-header-title { font-family: 'Playfair Display', serif; font-size: 65px; color: #064e3b; font-weight: 900; margin-bottom: 0; letter-spacing: 2px; }
+        .cert-header-sub { font-size: 22px; color: #b45309; font-weight: 700; letter-spacing: 8px; margin-bottom: 40px; }
+        
+        .cert-badge { width: 120px; margin-bottom: 20px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); }
+        
+        .cert-member-name { 
+            font-family: 'Playfair Display', serif; font-size: 55px; color: #1e293b; 
+            border-bottom: 2px solid #d4af37; padding: 0 50px 10px 50px; margin: 20px 0; 
+            font-style: italic; font-weight: 900;
         }
-
-        .cert-header {
-            position: relative;
-            height: 120px;
-            background: linear-gradient(to right, #065f46, #0f766e, #047857);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+        .cert-id-tag { 
+            position: absolute; top: 50px; right: 50px; background: #064e3b; color: #d4af37;
+            padding: 10px 20px; font-weight: 800; border-radius: 4px; font-size: 14px; letter-spacing: 2px;
         }
-
-        .cert-header::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url('https://www.transparenttextures.com/patterns/white-tiles.png');
-            opacity: 0.12;
-            pointer-events: none;
-        }
-
-        .cert-main {
-            position: relative;
-            padding: 3.5rem 4.5rem;
-            display: grid;
-            grid-template-rows: auto auto 1fr auto;
-            gap: 1.75rem;
-            text-align: center;
-        }
-
-        .cert-main::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url('https://www.transparenttextures.com/patterns/diamond-upholstery.png');
-            opacity: 0.04;
-            pointer-events: none;
-        }
-
-        .cert-name {
-            font-size: 3.8rem;
-            font-weight: 900;
-            color: #0f172a;
-            letter-spacing: -1.5px;
-            border-bottom: 5px solid #059669;
-            display: inline-block;
-            padding-bottom: 0.5rem;
-            line-height: 1.05;
-        }
-
-        .cert-body {
-            font-size: 1.35rem;
-            line-height: 1.7;
-            color: #334155;
-            max-width: 780px;
-            margin: 0 auto;
-            font-weight: 500;
-        }
-
-        .cert-seal-qr {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5rem;
-            margin-top: 1.5rem;
-        }
-
-        .cert-footer {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            padding: 1.5rem 5rem 2.5rem;
-            border-top: 1px solid rgba(203, 213, 225, 0.6);
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(8px);
-            align-items: end;
-        }
-
-        .sig-line {
-            width: 180px;
-            height: 2px;
-            background: #475569;
-            margin: 0 auto 0.6rem;
-        }
-
-        .cert-id-badge {
-            position: absolute;
-            top: 1.5rem;
-            right: 2.5rem;
-            background: rgba(254, 243, 199, 0.9);
-            backdrop-filter: blur(6px);
-            border: 1px solid #f59e0b;
-            color: #b45309;
-            padding: 0.5rem 1.2rem;
-            border-radius: 1rem;
-            font-weight: 900;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
-            transform: rotate(3deg);
-        }
+        .cert-seal-img { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 160px; opacity: 0.15; }
+        /* ---------------------------------- */
+        
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { animation: marquee 25s linear infinite; }
     </style>
 </head>
 <body>
 
-    <!-- Navbar (আগের মতোই রাখা হয়েছে) -->
+    <!-- Navbar -->
     <nav class="sticky top-0 z-50 glass-nav px-6 py-4 flex justify-between items-center">
         <div class="flex items-center gap-2 cursor-pointer" onclick="showSection('home')">
-            <div class="bg-green-600 p-2 rounded-2xl shadow-lg"><i data-lucide="shield-check" class="text-white w-5 h-5"></i></div>
-            <span class="text-xl font-black italic tracking-tighter">BSKF.</span>
+            <div class="bg-emerald-600 p-2 rounded-2xl shadow-lg"><i data-lucide="shield-check" class="text-white w-5 h-5"></i></div>
+            <span class="text-xl font-black tracking-tighter">BSKF<span class="text-emerald-600">.</span></span>
         </div>
         <div class="relative">
-            <button id="profileBtn" class="bg-white border-2 border-slate-100 p-2 rounded-2xl shadow-sm hover:border-green-500 transition">
+            <button id="profileBtn" class="bg-white border p-2 rounded-2xl shadow-sm hover:ring-2 ring-emerald-500 transition-all">
                 <i data-lucide="user" class="w-6 h-6 text-slate-600"></i>
             </button>
-            <div id="profileMenu" class="hidden absolute right-0 mt-3 w-56 bg-white rounded-3xl shadow-2xl border p-2 z-50 overflow-hidden">
-                <div id="guestLinks" class="space-y-1">
+            <div id="profileMenu" class="hidden absolute right-0 mt-3 w-56 bg-white rounded-3xl shadow-2xl border p-2 z-50">
+                <div id="guestLinks">
                     <button onclick="showSection('login')" class="w-full text-left px-5 py-3 hover:bg-slate-50 rounded-2xl font-bold text-sm">লগইন</button>
-                    <button onclick="showSection('register')" class="w-full text-left px-5 py-3 hover:bg-green-50 rounded-2xl font-bold text-sm text-green-600">নিবন্ধন</button>
+                    <button onclick="showSection('register')" class="w-full text-left px-5 py-3 hover:bg-emerald-50 rounded-2xl font-bold text-sm text-emerald-600">নিবন্ধন</button>
                 </div>
-                <div id="userLinks" class="hidden space-y-1">
+                <div id="userLinks" class="hidden">
                     <button onclick="showSection('dashboard')" class="w-full text-left px-5 py-3 hover:bg-slate-50 rounded-2xl font-bold text-sm">ড্যাশবোর্ড</button>
-                    <button onclick="logout()" class="w-full text-left px-5 py-3 hover:bg-red-50 text-red-600 rounded-2xl font-bold text-sm mt-1 border-t pt-4">লগআউট</button>
+                    <button onclick="logout()" class="w-full text-left px-5 py-3 hover:bg-red-50 text-red-600 rounded-2xl font-bold text-sm mt-1 border-t">লগআউট</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- মূল কন্টেন্ট (আগের মতোই রাখা হয়েছে – শুধু certificateTemplate অংশ বদলানো) -->
     <main class="max-w-4xl mx-auto p-6 space-y-10">
-        <!-- Home, Register, Dashboard, Payment, History sections আগের মতোই থাকবে -->
-        <!-- ............................................................ -->
-        <!-- শুধু নিচের certificateTemplate অংশটি নতুন করে দেওয়া হলো -->
+        
+        <!-- Home -->
+        <section id="home">
+            <header class="text-center py-10 space-y-3">
+                <h1 class="text-5xl md:text-7xl font-black tracking-tighter italic uppercase text-slate-900">BSKF <span class="text-emerald-600">CORP</span></h1>
+                <p class="text-slate-500 font-medium text-lg">কুপতলা আলোকিত সমাজ ফাউন্ডেশন - মানবতার কল্যাণে।</p>
+            </header>
 
-        <!-- PREMIUM CERTIFICATE TEMPLATE - MODERN GRID STYLE -->
-        <div id="certificateTemplate">
-            <div class="cert-grid-container">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="premium-card p-8 border-b-4 border-emerald-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Fund</p>
+                    <h3 id="statFund" class="text-3xl font-black text-emerald-700">৳ ০</h3>
+                </div>
+                <div class="premium-card p-8 border-b-4 border-rose-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Expense</p>
+                    <h3 id="statExpense" class="text-3xl font-black text-rose-700">৳ ০</h3>
+                </div>
+                <div class="premium-card p-8 border-b-4 border-blue-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Members</p>
+                    <h3 id="statMembers" class="text-3xl font-black text-blue-700">০ জন</h3>
+                </div>
+            </div>
 
-                <!-- Header -->
-                <div class="cert-header">
-                    <div>
-                        <h1 class="text-6xl font-black tracking-tight drop-shadow-lg">BSKF FOUNDATION</h1>
-                        <p class="text-xl font-bold text-emerald-100 tracking-[0.35em] mt-1 uppercase">কুপতলা আলোকিত সমাজ ফাউন্ডেশন</p>
+            <div class="bg-slate-900 py-4 rounded-3xl overflow-hidden shadow-xl mb-10">
+                <div id="ticker" class="flex gap-20 animate-marquee whitespace-nowrap text-white text-[11px] font-bold uppercase tracking-widest"></div>
+            </div>
+
+            <div class="premium-card p-8 mb-12">
+                <h4 class="text-lg font-black mb-6 flex items-center gap-2 italic"><i data-lucide="activity" class="text-emerald-500"></i> সাম্প্রতিক ব্যয়সমূহ</h4>
+                <div class="overflow-x-auto"><table class="w-full text-sm text-left"><tbody id="homeExpList" class="divide-y"></tbody></table></div>
+            </div>
+        </section>
+
+        <!-- Register -->
+        <section id="register" class="section-hide max-w-xl mx-auto">
+            <div class="premium-card p-10">
+                <h2 class="text-2xl font-black mb-1 text-center italic">সদস্য আবেদন</h2>
+                <p class="text-center text-rose-500 text-xs font-bold mb-8">নিবন্ধন ফি ২০০ টাকা প্রযোজ্য</p>
+                <form id="regForm" class="space-y-4">
+                    <input type="text" id="regName" placeholder="পুরো নাম" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none focus:ring-2 ring-emerald-500 transition-all font-bold" required>
+                    <input type="text" id="regPhone" placeholder="মোবাইল নম্বর" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold" required>
+                    <input type="text" id="regNID" placeholder="এনআইডি নম্বর" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold" required>
+                    <input type="password" id="regPass" placeholder="পাসওয়ার্ড" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold" required>
+                    
+                    <div class="bg-emerald-50 p-6 rounded-[2rem] border-2 border-dashed border-emerald-200 space-y-4">
+                        <div class="pay-numbers flex flex-wrap justify-center gap-4 text-[10px] font-black text-emerald-800 uppercase italic"></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <select id="regMethod" class="p-4 bg-white rounded-xl border font-bold text-sm" required>
+                                <option value="">Method</option><option value="Bkash">Bkash</option><option value="Nagad">Nagad</option>
+                            </select>
+                            <input type="text" id="regSender" placeholder="Sender No" class="p-4 bg-white rounded-xl border font-bold text-sm" required>
+                        </div>
+                        <input type="text" id="regTrx" placeholder="Transaction ID (TrxID)" class="w-full p-4 bg-white rounded-xl border-2 border-emerald-400 font-black text-center uppercase tracking-widest" required>
                     </div>
-                    <div id="certID" class="cert-id-badge">ID: BSKF-0000</div>
+                    <button type="submit" class="w-full btn-premium py-5 rounded-2xl font-black text-lg uppercase">Apply Now</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="section-hide space-y-8">
+            <div id="pendingStatus" class="hidden bg-amber-50 border-2 border-dashed border-amber-200 p-10 rounded-[3rem] text-center">
+                <i data-lucide="loader" class="w-12 h-12 text-amber-500 mx-auto mb-4 animate-spin"></i>
+                <h3 class="text-xl font-black text-amber-700">আবেদনটি যাচাই করা হচ্ছে...</h3>
+                <p class="text-xs font-bold text-slate-500 mt-2">এডমিন আপনার পেমেন্ট নিশ্চিত করলে আইডি সক্রিয় হবে।</p>
+            </div>
+
+            <div id="activeDashboard" class="hidden space-y-10">
+                <div class="premium-card p-12 text-center relative overflow-hidden bg-white border-t-8 border-emerald-600">
+                    <div class="bg-emerald-600 text-white absolute top-6 right-[-35px] px-12 py-1 rotate-45 text-[10px] font-black shadow-lg uppercase">Verified</div>
+                    <h4 id="dashName" class="text-4xl font-black text-slate-900 mb-1 italic uppercase tracking-tighter">...</h4>
+                    <p id="dashID" class="text-[11px] text-slate-400 font-black tracking-[0.4em] uppercase mb-10">BSKF-0000</p>
+                    
+                    <button onclick="downloadCertificate()" id="downloadBtn" class="bg-slate-900 text-white px-10 py-4 rounded-full font-black text-[12px] uppercase tracking-widest flex items-center gap-3 mx-auto shadow-2xl hover:bg-emerald-600 transition-all active:scale-95">
+                        <i data-lucide="award" class="w-5 h-5"></i> Get High-Quality Certificate
+                    </button>
                 </div>
 
-                <!-- Main Content -->
-                <div class="cert-main">
-                    <p class="text-2xl font-semibold text-slate-600 italic">This is to certify that</p>
+                <div class="grid grid-cols-2 gap-6">
+                    <button onclick="showSection('payment')" class="bg-emerald-600 text-white p-8 rounded-[2.5rem] flex flex-col items-center gap-3 shadow-xl font-black italic">
+                        <i data-lucide="plus-circle"></i> অর্থ জমা দিন
+                    </button>
+                    <button onclick="showSection('history')" class="bg-white text-slate-900 p-8 rounded-[2.5rem] flex flex-col items-center gap-3 shadow-md border font-black italic">
+                        <i data-lucide="history"></i> পেমেন্ট রেকর্ড
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment -->
+        <section id="payment" class="section-hide max-w-md mx-auto">
+            <div class="premium-card p-10">
+                <h3 class="text-xl font-black mb-8 italic uppercase text-center">মাসিক চাঁদা প্রদান</h3>
+                <div class="pay-numbers bg-slate-900 text-emerald-400 p-6 rounded-3xl mb-8 space-y-2 text-[11px] font-bold text-center border-b-4 border-emerald-600"></div>
+                <form id="payForm" class="space-y-4">
+                    <select id="pMethod" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold" required>
+                        <option value="">Select Method</option><option value="Bkash">Bkash</option><option value="Nagad">Nagad</option>
+                    </select>
+                    <input type="number" id="pAmt" placeholder="পরিমাণ (৳)" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold" required>
+                    <input type="text" id="pTrx" placeholder="TrxID" class="w-full p-4 bg-slate-50 rounded-2xl border font-black uppercase tracking-widest" required>
+                    <input type="text" id="pFrom" placeholder="প্রেরক নম্বর" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold" required>
+                    <button type="submit" class="w-full btn-premium py-4 rounded-2xl font-black uppercase">Submit Payment</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- History -->
+        <section id="history" class="section-hide max-w-md mx-auto space-y-4 pb-20">
+            <h3 class="text-xl font-black italic mb-6">আপনার পেমেন্ট রেকর্ড</h3>
+            <div id="histList" class="space-y-4"></div>
+        </section>
+
+        <!-- ULTRA PREMIUM CERTIFICATE TEMPLATE -->
+        <div id="certificateTemplate">
+            <div class="cert-outer-border">
+                <div class="cert-inner-border">
+                    <div class="cert-overlay-pattern"></div>
+                    <div class="cert-corner corner-tl"></div>
+                    <div class="cert-corner corner-tr"></div>
+                    <div class="cert-corner corner-bl"></div>
+                    <div class="cert-corner corner-br"></div>
                     
-                    <div>
-                        <div id="certName" class="cert-name">MEMBER NAME</div>
+                    <div class="cert-id-tag" id="certID">ID: BSKF-0000</div>
+                    
+                    <div style="text-align: center; z-index: 10;">
+                        <i data-lucide="shield-check" style="width: 80px; height: 80px; color: #d4af37; margin: 0 auto 20px;"></i>
+                        <h1 class="cert-header-title">BSKF FOUNDATION</h1>
+                        <p class="cert-header-sub">KUPTALA ALOKITO SOMAJ FOUNDATION</p>
+                        
+                        <div style="margin: 40px 0;">
+                            <p style="font-size: 18px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 3px;">Certificate of Active Membership</p>
+                            <p style="font-size: 16px; color: #94a3b8; font-style: italic; margin-top: 10px;">This certificate is proudly presented to</p>
+                        </div>
+                        
+                        <div class="cert-member-name" id="certName">MEMBER FULL NAME</div>
+                        
+                        <div style="max-width: 750px; margin: 30px auto;">
+                            <p style="font-size: 18px; line-height: 1.8; color: #334155; font-weight: 500;">
+                                For their outstanding commitment and selfless contribution towards the social welfare initiatives of 
+                                <b>BSKF Foundation</b>. This honor recognizes their official status as a verified member dedicated 
+                                to illuminating our society through unity and kindness.
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="cert-body">
-                        has been officially recognized as a <strong class="text-emerald-700 font-bold">verified and active member</strong> of 
-                        <strong>BSKF Foundation</strong>.<br>
-                        Their sincere commitment and contribution to building an enlightened and prosperous society in Kupatola is highly appreciated.
-                    </div>
+                    <img src="https://cdn-icons-png.flaticon.com/512/3670/3670209.png" class="cert-seal-img">
 
-                    <div class="cert-seal-qr">
-                        <img 
-                            src="https://i.ibb.co/L6V6X4V/official-seal.png" 
-                            onerror="this.src='https://cdn-icons-png.flaticon.com/512/3670/3670209.png'" 
-                            class="w-40 opacity-95 drop-shadow-2xl"
-                            alt="Official Seal"
-                        >
-                        <div class="text-center">
-                            <div class="w-24 h-24 mx-auto bg-white border-4 border-slate-200 rounded-2xl flex items-center justify-center shadow-inner">
-                                <i data-lucide="qr-code" class="w-16 h-16 text-slate-400"></i>
+                    <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; z-index: 10; padding: 0 40px;">
+                        <div style="text-align: center;">
+                            <div style="width: 200px; border-top: 2px solid #064e3b; margin-bottom: 10px;"></div>
+                            <p style="font-weight: 900; color: #064e3b; font-size: 14px; text-transform: uppercase;">Chairman</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 5px;">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=BSKF-VERIFIED" style="width: 60px;">
                             </div>
-                            <p class="text-sm font-bold text-slate-500 mt-2 tracking-wider">VERIFIED</p>
+                            <p style="font-size: 9px; font-weight: 800; color: #94a3b8;">SECURE VERIFIED</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 200px; border-top: 2px solid #064e3b; margin-bottom: 10px;"></div>
+                            <p style="font-weight: 900; color: #064e3b; font-size: 14px; text-transform: uppercase;">General Secretary</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Footer -->
-                <div class="cert-footer">
-                    <div class="text-center">
-                        <div class="sig-line"></div>
-                        <p class="font-bold text-base uppercase tracking-wider text-slate-700">Chairman</p>
-                    </div>
-
-                    <div class="text-center">
-                        <p class="text-sm font-semibold text-emerald-700 tracking-widest">ISSUED ON</p>
-                        <p class="text-base font-medium text-slate-600" id="certDate">--</p>
-                    </div>
-
-                    <div class="text-center">
-                        <div class="sig-line"></div>
-                        <p class="font-bold text-base uppercase tracking-wider text-slate-700">General Secretary</p>
-                    </div>
-                </div>
-
             </div>
         </div>
 
-        <!-- বাকি সেকশনগুলো (login, register, dashboard ইত্যাদি) আগের মতোই থাকবে -->
+        <!-- Login -->
+        <section id="login" class="section-hide max-w-sm mx-auto py-10">
+            <div class="premium-card p-10">
+                <h2 class="text-2xl font-black mb-8 text-center italic uppercase">Member Login</h2>
+                <form id="loginForm" class="space-y-4">
+                    <input type="text" id="logPhone" placeholder="মোবাইল নম্বর" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold outline-none" required>
+                    <input type="password" id="logPass" placeholder="পাসওয়ার্ড" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold outline-none" required>
+                    <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase hover:bg-emerald-600 transition-all">Login Now</button>
+                </form>
+            </div>
+        </section>
 
     </main>
 
     <script>
+        // Firebase Config
         const firebaseConfig = {
           apiKey: "AIzaSyDeFrZUu2ZwWzFa7owaC0v6WO_zP2lEJ1Q",
           authDomain: "firstdevloping.firebaseapp.com",
@@ -255,52 +288,146 @@
 
         let activeUser = null;
 
-        // আগের সব ফাংশন একই থাকবে...
+        function showSection(id) {
+            ['home', 'register', 'login', 'dashboard', 'payment', 'history'].forEach(s => {
+                const el = document.getElementById(s); if(el) el.classList.add('section-hide');
+            });
+            document.getElementById(id).classList.remove('section-hide');
+            document.getElementById('profileMenu').classList.add('hidden');
+            window.scrollTo(0,0);
+        }
+
+        document.getElementById('profileBtn').onclick = (e) => { e.stopPropagation(); document.getElementById('profileMenu').classList.toggle('hidden'); }
+        document.body.onclick = () => document.getElementById('profileMenu').classList.add('hidden');
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const phone = user.email.split('@')[0];
+                db.collection("members").doc(phone).onSnapshot(doc => {
+                    if(doc.exists) {
+                        activeUser = doc.data();
+                        updateDashboardUI();
+                    }
+                });
+            } else {
+                document.getElementById('guestLinks').classList.remove('hidden');
+                document.getElementById('userLinks').classList.add('hidden');
+                showSection('home');
+            }
+        });
 
         function updateDashboardUI() {
             document.getElementById('dashName').innerText = activeUser.name;
             document.getElementById('dashID').innerText = 'ID: BSKF-' + activeUser.id;
-            document.getElementById('dashNID').innerText = activeUser.nid;
-            document.getElementById('dashPhone').innerText = activeUser.phone;
-            
             document.getElementById('certName').innerText = activeUser.name;
             document.getElementById('certID').innerText = 'ID: BSKF-' + activeUser.id;
+            document.getElementById('guestLinks').classList.add('hidden');
+            document.getElementById('userLinks').classList.remove('hidden');
 
-            // তারিখ আপডেট
-            document.getElementById('certDate').innerText = new Date().toLocaleDateString('bn-BD', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-
-            // বাকি কোড আগের মতো...
+            if(activeUser.status === 'pending') {
+                document.getElementById('pendingStatus').classList.remove('hidden');
+                document.getElementById('activeDashboard').classList.add('hidden');
+            } else {
+                document.getElementById('pendingStatus').classList.add('hidden');
+                document.getElementById('activeDashboard').classList.remove('hidden');
+                loadPersonalHistory(activeUser.phone);
+            }
         }
 
-        // downloadCertificate ফাংশন (আগের মতোই)
-        function downloadCertificate() {
-            const template = document.getElementById('certificateTemplate');
-            const btn = event.currentTarget;
-            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Generating...';
+        function initApp() {
+            db.collection("stats").doc("summary").onSnapshot(doc => {
+                if(doc.exists) {
+                    const d = doc.data();
+                    document.getElementById('statFund').innerText = '৳ ' + (d.fund || 0).toLocaleString('bn-BD');
+                    document.getElementById('statExpense').innerText = '৳ ' + (d.expenses || 0).toLocaleString('bn-BD');
+                }
+            });
+
+            db.collection("members").where("status", "==", "active").onSnapshot(snap => {
+                document.getElementById('statMembers').innerText = snap.size + ' জন';
+                const ticker = document.getElementById('ticker'); ticker.innerHTML = "";
+                snap.forEach(m => ticker.innerHTML += `<span>★ ${m.data().name} (${m.data().role || 'সদস্য'})</span>`);
+            });
+
+            db.collection("expenses").onSnapshot(snap => {
+                const list = document.getElementById('homeExpList'); list.innerHTML = "";
+                let docs = []; snap.forEach(doc => docs.push(doc.data()));
+                docs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).slice(0, 10).forEach(e => {
+                    list.innerHTML += `<tr><td class="py-4 font-bold uppercase text-slate-700">${e.desc}</td><td class="py-4 text-rose-600 font-black">৳ ${e.amount}</td></tr>`;
+                });
+            });
+
+            db.collection("config").doc("payment_numbers").onSnapshot(doc => {
+                if(doc.exists) {
+                    const d = doc.data();
+                    const numHTML = `<span>Bkash: ${d.bkash}</span> | <span>Nagad: ${d.nagad}</span>`;
+                    document.querySelectorAll('.pay-numbers').forEach(el => el.innerHTML = numHTML);
+                }
+            });
+        }
+
+        async function downloadCertificate() {
+            const btn = document.getElementById('downloadBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader" class="animate-spin w-5 h-5"></i> Processing...';
             lucide.createIcons();
+
+            const template = document.getElementById('certificateTemplate');
             
+            // Wait for QR or other assets
+            await new Promise(r => setTimeout(r, 1000));
+
             html2canvas(template, {
-                scale: 2.5,
+                scale: 3, // High-quality 300DPI equivalent
                 useCORS: true,
-                allowTaint: true,
-                backgroundColor: null
+                logging: false,
+                backgroundColor: "#ffffff"
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `BSKF-Premium-Certificate-${activeUser.name.replace(/\s+/g, '_')}.png`;
-                link.href = canvas.toDataURL("image/png");
+                link.download = `BSKF_Premium_Certificate_${activeUser.name}.png`;
+                link.href = canvas.toDataURL("image/png", 1.0);
                 link.click();
-                btn.innerHTML = '<i data-lucide="award" class="w-4 h-4"></i> Download Premium Certificate';
+                btn.innerHTML = originalHTML;
                 lucide.createIcons();
             });
         }
 
-        // বাকি সব ফাংশন (initApp, regForm, loginForm, payForm ইত্যাদি) আগের মতোই থাকবে
-        // ............................................................
+        document.getElementById('regForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('regPhone').value;
+            try {
+                await auth.createUserWithEmailAndPassword(phone + "@bskf.com", document.getElementById('regPass').value);
+                const memberInfo = { name: document.getElementById('regName').value, phone, nid: document.getElementById('regNID').value, id: Math.floor(1000 + Math.random() * 9000), status: 'pending', role: 'member' };
+                await db.collection("members").doc(phone).set(memberInfo);
+                await db.collection("payments").add({ phone, name: memberInfo.name, amount: 200, method: document.getElementById('regMethod').value, trxId: document.getElementById('regTrx').value, from: document.getElementById('regSender').value, status: 'pending', type: 'registration', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                alert("নিবন্ধন আবেদন জমা হয়েছে!"); showSection('dashboard');
+            } catch (err) { alert(err.message); }
+        };
 
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            try { await auth.signInWithEmailAndPassword(document.getElementById('logPhone').value + "@bskf.com", document.getElementById('logPass').value); showSection('dashboard'); }
+            catch (err) { alert("ভুল তথ্য দেওয়া হয়েছে।"); }
+        };
+
+        document.getElementById('payForm').onsubmit = async (e) => {
+            e.preventDefault();
+            await db.collection("payments").add({ phone: activeUser.phone, name: activeUser.name, method: document.getElementById('pMethod').value, amount: parseFloat(document.getElementById('pAmt').value), trxId: document.getElementById('pTrx').value, from: document.getElementById('pFrom').value, status: 'pending', type: 'monthly', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            alert("পেমেন্ট তথ্য জমা হয়েছে!"); showSection('history'); e.target.reset();
+        };
+
+        function loadPersonalHistory(phone) {
+            db.collection("payments").where("phone", "==", phone).onSnapshot(snap => {
+                const list = document.getElementById('histList'); list.innerHTML = "";
+                let personalDocs = []; snap.forEach(d => personalDocs.push(d.data()));
+                personalDocs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).forEach(p => {
+                    const isOk = p.status === 'confirmed';
+                    list.innerHTML += `<div class="bg-white p-6 rounded-3xl border flex justify-between items-center shadow-sm"><div><p class="text-xl font-black italic">৳ ${p.amount}</p><p class="text-[9px] text-slate-400 font-bold uppercase">${p.method} • ${p.trxId}</p></div><span class="px-3 py-1 rounded-full text-[9px] font-black uppercase italic ${isOk ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">${isOk ? 'Success' : 'Pending'}</span></div>`;
+                });
+            });
+        }
+
+        function logout() { auth.signOut(); location.reload(); }
         initApp();
     </script>
 </body>
