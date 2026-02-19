@@ -1,302 +1,339 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSKF Admin - কন্ট্রোল সেন্টার</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSKF Admin – Premium Dashboard</title>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<!-- Fonts & UI -->
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background: #0f172a; color: #f1f5f9; overflow-x: hidden; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 2rem; }
-        .tab-active { background: #10b981; color: white; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3); }
-        .section-hide { display: none; }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-    </style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+<style>
+body{
+  font-family:'Hind Siliguri',sans-serif;
+  background:#0f172a;
+  color:#e5e7eb;
+}
+.glass{
+  background:rgba(30,41,59,.65);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:1.5rem;
+}
+.btn{
+  padding:.8rem 1.4rem;
+  border-radius:1rem;
+  font-weight:800;
+  transition:.25s;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#10b981,#059669);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 15px 30px rgba(16,185,129,.35);
+}
+.sidebar-btn{
+  display:flex;
+  gap:.7rem;
+  padding:.7rem 1rem;
+  border-radius:1rem;
+  font-weight:700;
+  color:#94a3b8;
+}
+.sidebar-btn:hover{background:#ffffff10;color:#fff}
+.tab-active{background:#10b981!important;color:white!important}
+.section-hide{display:none}
+</style>
 </head>
-<body class="p-4 md:p-8">
 
-    <!-- Admin Login Overlay -->
-    <div id="adminLoginView" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-6">
-        <div class="max-w-md w-full bg-slate-900 p-10 rounded-[3rem] shadow-2xl border border-slate-800 text-center">
-            <div class="bg-emerald-500 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-                <i data-lucide="lock" class="text-white w-8 h-8"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-2 italic">এডমিন লগইন</h2>
-            <p class="text-xs text-slate-500 mb-8 uppercase tracking-widest">BSKF Security Portal</p>
-            <form id="aLoginForm" class="space-y-4 text-slate-900">
-                <input type="text" id="aPhone" placeholder="এডমিন মোবাইল নম্বর" class="w-full p-4 bg-slate-800 text-white rounded-2xl border border-slate-700 outline-none focus:border-emerald-500" required>
-                <input type="password" id="aPass" placeholder="গোপন পাসওয়ার্ড" class="w-full p-4 bg-slate-800 text-white rounded-2xl border border-slate-700 outline-none focus:border-emerald-500" required>
-                <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-emerald-500 transition">প্রবেশ করুন</button>
-                <button type="button" onclick="forgotPass()" class="text-[10px] font-bold text-slate-500 uppercase mt-4 hover:text-emerald-400 transition">পাসওয়ার্ড ভুলে গেছেন?</button>
-            </form>
-        </div>
-    </div>
+<body class="min-h-screen flex">
 
-    <!-- Admin Panel Layout (Hidden until login) -->
-    <div id="adminDashboard" class="section-hide max-w-6xl mx-auto">
-        
-        <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-            <div class="flex items-center gap-4">
-                <div class="bg-emerald-500 p-3 rounded-2xl shadow-2xl shadow-emerald-500/20"><i data-lucide="shield-check" class="text-white w-8 h-8"></i></div>
-                <div>
-                    <h1 class="text-3xl font-black tracking-tighter uppercase">BSKF <span class="text-emerald-500">Admin</span></h1>
-                    <p id="monthLabel" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">...</p>
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <div class="bg-slate-800 px-6 py-3 rounded-2xl border border-slate-700">
-                    <p class="text-[8px] font-bold text-slate-500 uppercase">মোট ফান্ড</p>
-                    <h4 id="topFund" class="text-xl font-black text-emerald-400 tracking-tighter">৳ ০</h4>
-                </div>
-                <button onclick="logout()" class="bg-red-500/10 text-red-500 px-6 py-3 rounded-2xl font-bold text-sm border border-red-500/20 hover:bg-red-500 hover:text-white transition flex items-center gap-2">
-                    <i data-lucide="power" class="w-4 h-4"></i> লগআউট
-                </button>
-            </div>
-        </header>
+<!-- ================= LOGIN ================= -->
+<div id="login" class="fixed inset-0 bg-slate-950 flex items-center justify-center z-50">
+  <form id="loginForm" class="glass p-10 w-full max-w-md space-y-4 text-center">
+    <h2 class="text-2xl font-black italic">Admin Login</h2>
+    <input id="phone" placeholder="মোবাইল নম্বর" class="w-full p-4 bg-slate-800 rounded-xl font-bold">
+    <input id="pass" type="password" placeholder="পাসওয়ার্ড" class="w-full p-4 bg-slate-800 rounded-xl font-bold">
+    <button class="btn btn-primary w-full">প্রবেশ করুন</button>
+  </form>
+</div>
 
-        <!-- Tabs -->
-        <div class="flex flex-wrap gap-2 mb-10 border-b border-slate-800 pb-6">
-            <button id="t-pending" onclick="switchTab('pending')" class="px-6 py-3 rounded-xl font-bold text-sm transition tab-active">পেন্ডিং যাচাই</button>
-            <button id="t-paid" onclick="switchTab('paid')" class="px-6 py-3 rounded-xl font-bold text-sm transition text-slate-400 hover:bg-slate-800">চলতি মাসের সংগ্রহ</button>
-            <button id="t-config" onclick="switchTab('config')" class="px-6 py-3 rounded-xl font-bold text-sm transition text-slate-400 hover:bg-slate-800">নম্বর ও খরচ আপডেট</button>
-            <button id="t-members" onclick="switchTab('members')" class="px-6 py-3 rounded-xl font-bold text-sm transition text-slate-400 hover:bg-slate-800">সদস্য তালিকা</button>
-        </div>
+<!-- ================= SIDEBAR ================= -->
+<aside id="sidebar" class="hidden md:flex flex-col w-72 p-6 bg-slate-900 border-r border-slate-800">
+  <h1 class="text-xl font-black mb-8 italic text-emerald-400">BSKF Admin</h1>
+  <button class="sidebar-btn tab-active" id="btn-overview" onclick="tab('overview')">Dashboard</button>
+  <button class="sidebar-btn" id="btn-pending" onclick="tab('pending')">Pending</button>
+  <button class="sidebar-btn" id="btn-expenses" onclick="tab('expenses')">Expenses</button>
+  <button class="sidebar-btn" id="btn-members" onclick="tab('members')">Members</button>
+  <button class="sidebar-btn" id="btn-config" onclick="tab('config')">Settings</button>
+  <button onclick="logout()" class="sidebar-btn text-red-400 mt-auto">Logout</button>
+</aside>
 
-        <!-- Content Sections -->
-        <main>
-            <!-- Pending Section -->
-            <section id="s-pending">
-                <h3 class="text-xl font-black italic text-emerald-400 mb-6 flex items-center gap-2 tracking-tight"><i data-lucide="clock"></i> অপেক্ষমান পেমেন্ট রিকোয়েস্ট</h3>
-                <div id="pendingList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </section>
+<!-- ================= MAIN ================= -->
+<main id="main" class="hidden flex-1 p-6 space-y-8 overflow-y-auto">
 
-            <!-- Current Month Paid List -->
-            <section id="s-paid" class="section-hide space-y-6">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-black italic text-emerald-400 flex items-center gap-2"><i data-lucide="list-checks"></i> এই মাসে যারা পেমেন্ট করেছেন</h3>
-                    <span id="monthSum" class="bg-emerald-500/10 text-emerald-500 px-4 py-1 rounded-full font-bold text-xs border border-emerald-500/20">মোট: ৳ ০</span>
-                </div>
-                <div class="glass-card overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm font-bold divide-y divide-slate-800">
-                            <thead>
-                                <tr class="text-[10px] uppercase font-black text-slate-500 bg-slate-800/30 tracking-widest">
-                                    <th class="py-5 px-6">সদস্যের নাম</th>
-                                    <th class="py-5 px-6">মাধ্যম</th>
-                                    <th class="py-5 px-6">ট্রানজেকশন</th>
-                                    <th class="py-5 px-6">পরিমাণ</th>
-                                    <th class="py-5 px-6 text-right">তারিখ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="paidMonthList" class="divide-y divide-slate-800/50"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+<!-- ===== OVERVIEW ===== -->
+<section id="sec-overview" class="space-y-6">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="glass p-6"><p>মোট তহবিল</p><h2 id="fund" class="text-3xl font-black text-emerald-400">৳ ০</h2></div>
+    <div class="glass p-6"><p>সদস্য</p><h2 id="members" class="text-3xl font-black">০</h2></div>
+    <div class="glass p-6"><p>ব্যয়</p><h2 id="expense" class="text-3xl font-black text-red-400">৳ ০</h2></div>
+  </div>
+  <div class="glass p-6">
+    <canvas id="fundChart" height="120"></canvas>
+  </div>
+</section>
 
-            <!-- Config & Expense -->
-            <section id="s-config" class="section-hide grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div class="glass-card p-10 border-t-4 border-emerald-500">
-                    <h4 class="text-xl font-black mb-8 italic">পেমেন্ট নম্বর পরিবর্তন</h4>
-                    <form id="numUpdateForm" class="space-y-4">
-                        <input type="text" id="upBk" placeholder="বিকাশ নম্বর" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none border border-slate-700 font-black">
-                        <input type="text" id="upNg" placeholder="নগদ নম্বর" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none border border-slate-700 font-black">
-                        <input type="text" id="upRk" placeholder="রকেট নম্বর" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none border border-slate-700 font-black">
-                        <button type="submit" class="w-full bg-emerald-600 py-4 rounded-2xl font-black shadow-xl hover:bg-emerald-500 transition">নম্বর সেভ করুন</button>
-                    </form>
-                </div>
-                <div class="glass-card p-10 border-t-4 border-red-500">
-                    <h4 class="text-xl font-black mb-8 italic">ব্যয়ের হিসাব যোগ করুন</h4>
-                    <form id="expUpdateForm" class="space-y-4">
-                        <input type="text" id="eDesc" placeholder="ব্যয়ের বিবরণ" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none border border-slate-700 font-bold" required>
-                        <input type="number" id="eAmt" placeholder="টাকার পরিমাণ" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none border border-slate-700 font-bold" required>
-                        <button type="submit" class="w-full bg-red-600 py-4 rounded-2xl font-black shadow-xl">তহবিল থেকে ব্যয় করুন</button>
-                    </form>
-                </div>
-            </section>
+<!-- ===== PENDING ===== -->
+<section id="sec-pending" class="section-hide">
+  <h3 class="text-xl font-black mb-4">Pending Payments</h3>
+  <div id="pendingList" class="grid md:grid-cols-3 gap-4"></div>
+</section>
 
-            <!-- All Members -->
-            <section id="s-members" class="section-hide space-y-6">
-                <h3 class="text-xl font-black italic text-emerald-400">সকল নিবন্ধিত সদস্য</h3>
-                <div id="allMembersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-            </section>
-        </main>
-    </div>
+<!-- ===== EXPENSES ===== -->
+<section id="sec-expenses" class="section-hide space-y-4">
+  <form id="expForm" class="glass p-6 grid md:grid-cols-3 gap-4">
+    <input id="eDesc" placeholder="বিবরণ" class="p-4 bg-slate-800 rounded-xl">
+    <input id="eAmt" type="number" placeholder="পরিমাণ" class="p-4 bg-slate-800 rounded-xl">
+    <button class="btn btn-primary">Add Expense</button>
+  </form>
+  <div class="glass p-4">
+    <table class="w-full text-sm"><tbody id="expenseTable"></tbody></table>
+  </div>
+</section>
 
-    <!-- Logic -->
-    <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyDeFrZUu2ZwWzFa7owaC0v6WO_zP2lEJ1Q",
-          authDomain: "firstdevloping.firebaseapp.com",
-          projectId: "firstdevloping",
-          storageBucket: "firstdevloping.firebasestorage.app",
-          messagingSenderId: "197486624624",
-          appId: "1:197486624624:web:2b7b055dc3ecbad20399b5"
-        };
+<!-- ===== MEMBERS ===== -->
+<section id="sec-members" class="section-hide">
+  <div id="memberGrid" class="grid md:grid-cols-3 gap-4"></div>
+</section>
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        lucide.createIcons();
+<!-- ===== SETTINGS (PAYMENT NUMBERS) ===== -->
+<section id="sec-config" class="section-hide max-w-md">
+  <div class="glass p-6 space-y-4">
+    <h3 class="text-lg font-black text-emerald-400">Payment Numbers</h3>
+    <input id="bkash" placeholder="Bkash Number" class="w-full p-3 bg-slate-800 rounded-xl font-bold">
+    <input id="nagad" placeholder="Nagad Number" class="w-full p-3 bg-slate-800 rounded-xl font-bold">
+    <input id="rocket" placeholder="Rocket Number" class="w-full p-3 bg-slate-800 rounded-xl font-bold">
+    <button onclick="saveNumbers()" class="btn btn-primary w-full">Save Numbers</button>
+  </div>
+</section>
 
-        // ট্যাব সুইচ
-        function switchTab(id) {
-            ['pending', 'paid', 'config', 'members'].forEach(t => {
-                document.getElementById('s-' + t).classList.add('section-hide');
-                document.getElementById('t-' + t).classList.remove('tab-active', 'text-white');
-                document.getElementById('t-' + t).classList.add('text-slate-400');
-            });
-            document.getElementById('s-' + id).classList.remove('section-hide');
-            document.getElementById('t-' + id).classList.add('tab-active', 'text-white');
-            document.getElementById('t-' + id).classList.remove('text-slate-400');
-        }
+</main>
 
-        // লগইন চেক
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const phone = user.email.split('@')[0];
-                const doc = await db.collection("members").doc(phone).get();
-                if(doc.exists && doc.data().role === "admin") {
-                    document.getElementById('adminLoginView').classList.add('section-hide');
-                    document.getElementById('adminDashboard').classList.remove('section-hide');
-                    loadAdminPanelData();
-                } else {
-                    alert("আপনার এডমিন অ্যাক্সেস নেই!");
-                    auth.signOut();
-                }
-            } else {
-                document.getElementById('adminLoginView').classList.remove('section-hide');
-                document.getElementById('adminDashboard').classList.add('section-hide');
-            }
-        });
+<!-- ===== MOBILE BOTTOM NAV ===== -->
+<nav class="md:hidden fixed bottom-0 inset-x-0 bg-slate-900 flex justify-around py-3 border-t border-slate-800 z-40">
+  <button onclick="tab('overview')"><i data-lucide="layout-grid"></i></button>
+  <button onclick="tab('pending')"><i data-lucide="hourglass"></i></button>
+  <button onclick="tab('expenses')"><i data-lucide="receipt"></i></button>
+  <button onclick="tab('members')"><i data-lucide="users"></i></button>
+  <button onclick="tab('config')"><i data-lucide="settings"></i></button>
+</nav>
 
-        // লগইন সাবমিশন
-        document.getElementById('aLoginForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const phone = document.getElementById('aPhone').value;
-            const pass = document.getElementById('aPass').value;
-            try {
-                await auth.signInWithEmailAndPassword(phone + "@bskf.com", pass);
-            } catch (err) { alert("ভুল নম্বর বা পাসওয়ার্ড!"); }
-        };
+<!-- ===== TOAST ===== -->
+<div id="toastBox" class="fixed bottom-6 right-6 space-y-2 z-50"></div>
 
-        function loadAdminPanelData() {
-            const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-            document.getElementById('monthLabel').innerText = new Date().toLocaleString('bn-BD', { month: 'long', year: 'numeric' });
+<script>
+/* ================= FIREBASE CONFIG ================= */
+firebase.initializeApp({
+  apiKey:"AIzaSyDeFrZUu2ZwWzFa7owaC0v6WO_zP2lEJ1Q",
+  authDomain:"firstdevloping.firebaseapp.com",
+  projectId:"firstdevloping"
+});
+const db=firebase.firestore();
+const auth=firebase.auth();
+lucide.createIcons();
 
-            // ১. স্ট্যাটস
-            db.collection("stats").doc("summary").onSnapshot(doc => {
-                if(doc.exists) document.getElementById('topFund').innerText = '৳ ' + doc.data().fund.toLocaleString('bn-BD');
-            });
+/* ================= TOAST ================= */
+function toast(msg,type="ok"){
+  const d=document.createElement("div");
+  d.className=`glass px-6 py-3 font-bold ${type=="ok"?"text-emerald-400":"text-red-400"}`;
+  d.innerText=msg;
+  toastBox.appendChild(d);
+  setTimeout(()=>d.remove(),2500);
+}
 
-            // ২. পেন্ডিং পেমেন্ট
-            db.collection("payments").where("status", "==", "pending").onSnapshot(snap => {
-                const list = document.getElementById('pendingList');
-                list.innerHTML = "";
-                snap.forEach(doc => {
-                    const p = doc.data();
-                    list.innerHTML += `<div class="glass-card p-6 border-l-4 border-emerald-500 shadow-xl transition hover:scale-[1.03]">
-                        <div class="flex justify-between items-start mb-4"><span class="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase border border-emerald-500/20 tracking-widest">${p.method}</span><span class="text-[9px] font-bold text-slate-500 italic">${p.timestamp?.toDate().toLocaleString('bn-BD')}</span></div>
-                        <h4 class="font-black text-lg mb-1 tracking-tight">${p.name}</h4>
-                        <p class="text-[10px] text-slate-500 mb-4 font-bold uppercase tracking-widest">Phone: ${p.from} | Trx: ${p.trxId}</p>
-                        <div class="text-3xl font-black text-emerald-400 mb-6 tracking-tighter italic underline decoration-slate-800">৳ ${p.amount}</div>
-                        <button onclick="approve('${doc.id}', ${p.amount})" class="w-full bg-emerald-600 py-3 rounded-2xl font-black text-sm shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition">Approve Payment</button>
-                    </div>`;
-                });
-            });
+/* ================= LOGIN ================= */
+loginForm.onsubmit=e=>{
+  e.preventDefault();
+  auth.signInWithEmailAndPassword(phone.value+"@bskf.com",pass.value)
+  .catch(()=>toast("ভুল তথ্য","err"));
+};
 
-            // ৩. চলতি মাসের কালেকশন (Sorted by JS to avoid Index Error)
-            db.collection("payments").where("status", "==", "confirmed").onSnapshot(snap => {
-                const list = document.getElementById('paidMonthList');
-                list.innerHTML = "";
-                let total = 0;
-                let docs = [];
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    if(d.timestamp?.toDate() >= startOfMonth) { docs.push(d); total += d.amount; }
-                });
-                docs.sort((a,b) => b.timestamp - a.timestamp).forEach(d => {
-                    list.innerHTML += `<tr class="hover:bg-slate-800/40 transition">
-                        <td class="py-5 px-6 font-bold text-slate-200 uppercase tracking-tighter">${d.name} <p class="text-[9px] text-slate-500 font-medium">ID: ${d.phone.slice(-4)}</p></td>
-                        <td class="py-5 px-6 uppercase text-emerald-500 text-[10px] font-black italic tracking-widest">${d.method}</td>
-                        <td class="py-5 px-6 opacity-30 text-[10px] uppercase font-mono tracking-tighter">${d.trxId}</td>
-                        <td class="py-5 px-6 font-black text-emerald-400">৳ ${d.amount}</td>
-                        <td class="py-5 px-6 text-right opacity-30 text-[10px] font-black uppercase italic">${d.timestamp?.toDate().toLocaleDateString('bn-BD')}</td>
-                    </tr>`;
-                });
-                document.getElementById('monthSum').innerText = "মোট সংগ্রহ: ৳ " + total.toLocaleString('bn-BD');
-            });
+auth.onAuthStateChanged(u=>{
+  if(u){
+    login.classList.add("hidden");
+    sidebar.classList.remove("hidden");
+    main.classList.remove("hidden");
+    loadData();
+  }else{
+    login.classList.remove("hidden");
+  }
+});
 
-            // ৪. নম্বর লোড
-            db.collection("config").doc("payment_numbers").onSnapshot(doc => {
-                if(doc.exists) {
-                    const d = doc.data();
-                    document.getElementById('upBk').value = d.bkash || '';
-                    document.getElementById('upNg').value = d.nagad || '';
-                    document.getElementById('upRk').value = d.rocket || '';
-                }
-            });
+/* ================= TAB ================= */
+function tab(t){
+  ["overview","pending","expenses","members","config"].forEach(x=>{
+    document.getElementById("sec-"+x).classList.add("section-hide");
+    document.getElementById("btn-"+x)?.classList.remove("tab-active");
+  });
+  document.getElementById("sec-"+t).classList.remove("section-hide");
+  document.getElementById("btn-"+t)?.classList.add("tab-active");
+}
 
-            // ৫. সদস্য তালিকা
-            db.collection("members").onSnapshot(snap => {
-                const div = document.getElementById('allMembersGrid');
-                div.innerHTML = "";
-                snap.forEach(doc => {
-                    const m = doc.data();
-                    div.innerHTML += `<div class="glass-card p-5 flex items-center gap-4 border border-slate-800">
-                        <div class="bg-slate-700 w-12 h-12 rounded-2xl flex items-center justify-center font-black text-emerald-400 shadow-xl">${m.name[0]}</div>
-                        <div><p class="font-black text-sm tracking-tight">${m.name}</p><p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${m.phone} | ${m.role}</p></div>
-                    </div>`;
-                });
-            });
-        }
+/* ================= DATA ================= */
+let chart;
+function loadData(){
 
-        async function approve(pid, amt) {
-            const batch = db.batch();
-            batch.update(db.collection("payments").doc(pid), { status: 'confirmed' });
-            batch.update(db.collection("stats").doc("summary"), { fund: firebase.firestore.FieldValue.increment(amt) });
-            await batch.commit();
-            alert("সফলভাবে এপ্রুভ হয়েছে!");
-        }
+db.collection("stats").doc("summary").onSnapshot(d=>{
+  if(d.exists){
+    fund.innerText="৳ "+d.data().fund;
+    members.innerText=d.data().members;
+    expense.innerText="৳ "+(d.data().expenses||0);
+  }
+});
 
-        document.getElementById('numUpdateForm').onsubmit = async (e) => {
-            e.preventDefault();
-            await db.collection("config").doc("payment_numbers").set({
-                bkash: document.getElementById('upBk').value,
-                nagad: document.getElementById('upNg').value,
-                rocket: document.getElementById('upRk').value
-            }, { merge: true });
-            alert("নম্বর আপডেট হয়েছে!");
-        };
+/* Pending */
+db.collection("payments").where("status","==","pending").onSnapshot(s=>{
+  pendingList.innerHTML="";
+  s.forEach(doc=>{
+    let p=doc.data();
+    pendingList.innerHTML+=`
+    <div class="glass p-4">
+      <h4 class="font-black">${p.name}</h4>
+      <p>৳ ${p.amount}</p>
+      <button class="btn btn-primary w-full mt-2" onclick="approve('${doc.id}',${p.amount})">Approve</button>
+    </div>`;
+  });
+});
 
-        document.getElementById('expUpdateForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const amt = parseFloat(document.getElementById('eAmt').value);
-            const batch = db.batch();
-            batch.set(db.collection("expenses").doc(), { desc: document.getElementById('eDesc').value, amount: amt, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            batch.update(db.collection("stats").doc("summary"), { fund: firebase.firestore.FieldValue.increment(-amt), expenses: firebase.firestore.FieldValue.increment(amt) });
-            await batch.commit();
-            alert("ব্যয় সফলভাবে যোগ হয়েছে!");
-            e.target.reset();
-        };
+/* Expenses */
+db.collection("expenses").onSnapshot(s=>{
+  expenseTable.innerHTML="";
+  s.forEach(doc=>{
+    let e=doc.data();
+    expenseTable.innerHTML+=`
+      <tr><td>${e.desc}</td><td class="text-red-400">৳ ${e.amount}</td></tr>`;
+  });
+});
 
-        function forgotPass() {
-            const phone = document.getElementById('aPhone').value;
-            if(!phone) return alert("প্রথমে ফোন নম্বরটি দিন!");
-            auth.sendPasswordResetEmail(phone + "@bskf.com").then(() => alert("পাসওয়ার্ড পরিবর্তনের লিংক ইমেইলে পাঠানো হয়েছে (ইমেইল সিস্টেম কানেক্ট থাকলে)।"));
-        }
+/* Members */
+db.collection("members").onSnapshot(s=>{
+  memberGrid.innerHTML="";
+  s.forEach(doc=>{
+    let m=doc.data();
+    memberGrid.innerHTML+=`
+      <div class="glass p-4">
+        <h4 class="font-black">${m.name}</h4>
+        <p>${m.phone}</p>
+      </div>`;
+  });
+});
 
-        function logout() { auth.signOut(); }
-    </script>
+/* Payment Numbers */
+db.collection("config").doc("payment_numbers").onSnapshot(d=>{
+  if(d.exists){
+    bkash.value=d.data().bkash||"";
+    nagad.value=d.data().nagad||"";
+    rocket.value=d.data().rocket||"";
+  }
+});
+
+/* Chart */
+db.collection("payments").where("status","==","confirmed").onSnapshot(s=>{
+  let sum={};
+  s.forEach(d=>{
+    let dt=d.data().timestamp?.toDate();
+    if(!dt) return;
+    let k=(dt.getMonth()+1)+"/"+dt.getFullYear();
+    sum[k]=(sum[k]||0)+d.data().amount;
+  });
+  let labels=Object.keys(sum), data=Object.values(sum);
+  if(chart) chart.destroy();
+  chart=new Chart(fundChart,{
+    type:"bar",
+    data:{labels,datasets:[{label:"Monthly Collection",data,backgroundColor:"#10b981"}]}
+  });
+});
+}
+
+/* ================= ACTIONS ================= */
+function approve(id,amt){
+  db.collection("payments").doc(id).update({status:"confirmed"});
+  db.collection("stats").doc("summary")
+    .update({fund:firebase.firestore.FieldValue.increment(amt)});
+  toast("Approved");
+}
+
+expForm.onsubmit=e=>{
+  e.preventDefault();
+  db.collection("expenses").add({
+    desc:eDesc.value,
+    amount:+eAmt.value,
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  toast("Expense Added");
+  e.target.reset();
+}
+
+function saveNumbers(){
+  db.collection("config").doc("payment_numbers").set({
+    bkash:bkash.value,
+    nagad:nagad.value,
+    rocket:rocket.value
+  },{merge:true});
+  toast("Payment numbers saved");
+}
+
+function logout(){auth.signOut();}
+</script>
+
+<!--
+================= FIRESTORE SECURITY RULES (PASTE IN CONSOLE) =================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin(){
+      return request.auth != null &&
+      get(/databases/$(database)/documents/members/
+      $(request.auth.token.email.split('@')[0])).data.role == "admin";
+    }
+
+    match /members/{id}{
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /payments/{id}{
+      allow create: if request.auth != null;
+      allow read, update: if isAdmin();
+    }
+
+    match /expenses/{id}{
+      allow read, write: if isAdmin();
+    }
+
+    match /stats/{id}{
+      allow read, write: if isAdmin();
+    }
+
+    match /config/{id}{
+      allow read, write: if isAdmin();
+    }
+  }
+}
+===============================================================================
+-->
+
 </body>
 </html>
