@@ -16,3 +16,4 @@
 ## নোট
 - Zone ID Telegram CloudStorage ও localStorage-এ সংরক্ষিত হয়, যা প্রতি ইউজারের ডিভাইস/অ্যাকাউন্টে আলাদা। সব ইউজারের জন্য একই Zone চাইলে config.js-এর DEFAULT_ZONE_ID ব্যবহার করুন।
 - পয়েন্ট শুধু ডেমো; আসল রিওয়ার্ডের জন্য Monetag Postback + নিজের সার্ভার ব্যবহার করুন।
+https://alamin4545u.github.io/Ynewjkhbv/
