@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080d24">
+<title>EarnBd — Telegram Mini App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script async src="https://ads.bengalads.com/sdk/telegram-interstitial.js"></script>
+<style>
+:root{
+  --bg:#080d24;--panel:#101a3d;--panel2:#142451;--line:#263c83;
+  --gold:#ffd34f;--gold2:#ffad24;--blue:#29b8ff;--muted:#9eb4e9;
+  --white:#f7f9ff;--purple:#7957ff;--green:#42dfa8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 50% 30%,#17265b 0,#0b1230 42%,#070b1d 100%);color:var(--white);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;min-height:100vh;padding-bottom:104px}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:520px;margin:auto;padding:14px 16px 26px}
+.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;margin-bottom:18px;border:1px solid #1d2b5a;border-radius:23px;background:linear-gradient(110deg,#101a39dd,#0b1230dd);box-shadow:0 12px 32px #0005}
+.brand{font-size:25px;font-weight:900;letter-spacing:-.7px}.brand span{color:var(--gold)}
+.brand-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.avatar{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(145deg,#2e9cff,#4c48dc);font-size:21px;box-shadow:inset 0 2px 5px #ffffff66,0 7px 18px #167bff55}
+.balance-card{position:relative;overflow:hidden;padding:20px 19px;border-radius:27px;border:1px solid #344baf;background:linear-gradient(120deg,#17265d 0%,#15275c 55%,#25205f 100%);box-shadow:inset 0 1px 1px #ffffff24,0 16px 35px #0005}
+.balance-card:after{content:"";position:absolute;width:230px;height:160px;border-radius:50%;right:-65px;bottom:-100px;background:#8a72ff33;filter:blur(5px)}
+.balance-head{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.wallet-emoji{width:76px;height:76px;border-radius:23px;display:grid;place-items:center;font-size:48px;background:linear-gradient(145deg,#ffffff17,#ffffff04);box-shadow:inset 0 1px 8px #ffffff22}
+.balance-label{font-size:15px;color:#b9caff}.balance-number{font-size:35px;font-weight:900;letter-spacing:-1px;margin-top:3px}.balance-number small{font-size:16px;letter-spacing:0}
+.level{margin-left:auto;align-self:flex-start;padding:9px 12px;border:1px solid #8e7337;border-radius:15px;color:var(--gold);font-weight:800;background:#1b2142aa;white-space:nowrap;font-size:13px}
+.welcome{font-size:12px;color:#a9b9e8;margin-top:12px;position:relative;z-index:1}
+.visit-hero{text-align:center;padding:23px 6px 6px}
+.art{height:235px;display:grid;place-items:center;position:relative;margin:0 auto 6px;max-width:360px}
+.phone{width:166px;height:218px;border-radius:34px;padding:12px;background:linear-gradient(145deg,#20c5ff,#0752dc 65%,#182f9d);box-shadow:inset 0 3px 5px #ffffff8c,0 18px 30px #00104b99;transform:rotate(-5deg);position:relative}
+.phone-screen{height:100%;border-radius:25px;background:linear-gradient(160deg,#f9fdff,#cbdcff);padding:15px 10px;color:#18316c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;box-shadow:inset 0 0 0 2px #fff}
+.browser-dots{position:absolute;top:14px;left:23px;right:23px;height:24px;border-radius:15px;background:linear-gradient(90deg,#37baff,#2971ed);box-shadow:0 3px 8px #1c4eaa66}
+.browser-dots:after{content:"•••";color:white;letter-spacing:5px;font-size:14px;position:absolute;left:13px;top:2px}
+.globe{font-size:67px;filter:drop-shadow(0 6px 3px #3979db55);margin-top:13px}
+.mini-visit{font-size:16px;font-weight:900;color:white;background:linear-gradient(110deg,#267cff,#7958ff);border-radius:16px;padding:10px 23px;box-shadow:0 7px 12px #254fc966}
+.telegram-orb{position:absolute;left:8%;top:54px;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#45d2ff,#0876e9);box-shadow:inset 0 3px 5px #ffffff80,0 12px 20px #001b65;font-size:30px}
+.coin{position:absolute;left:23%;bottom:5px;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-size:42px;background:linear-gradient(145deg,#fff08a,#ffb500 60%,#e88a00);border:5px solid #ffda4d;box-shadow:inset 0 3px 4px #fff9,0 9px 17px #0008;transform:rotate(-12deg)}
+.plant{position:absolute;right:13%;bottom:4px;font-size:65px;filter:drop-shadow(0 8px 8px #0008)}
+.spark{position:absolute;right:12%;top:48px;color:var(--gold);font-size:35px;transform:rotate(20deg);text-shadow:0 4px 12px #ffb21e88}
+.visit-title{font-size:32px;font-weight:950;letter-spacing:-1px;margin-top:5px}.visit-title span{color:var(--gold)}
+.visit-desc{color:#b7c9f3;font-size:14px;line-height:1.55;max-width:330px;margin:8px auto 17px}
+.reward-strip{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #203b8b;border-radius:22px;background:linear-gradient(110deg,#111f4b,#10245a);padding:15px 10px;margin:0 3px 17px;box-shadow:inset 0 1px 1px #ffffff12}
+.reward-item{display:flex;align-items:center;justify-content:center;gap:10px}.reward-item+ .reward-item{border-left:1px solid #344d91}.reward-icon{font-size:30px}.reward-label{font-size:12px;color:#a9c0f4}.reward-value{font-size:17px;font-weight:900;color:var(--gold);margin-top:2px}.reward-value.blue{color:#42caff}
+.visit-btn{width:100%;border:1px solid #ffe889;border-radius:24px;padding:18px 12px;background:linear-gradient(180deg,#ffe36b,#ffb52c);color:#171a2c;font-size:21px;font-weight:950;box-shadow:0 7px 0 #a65b0b,0 13px 24px #ffb52b38,inset 0 2px 3px #fff9;transition:transform .15s,filter .15s}
+.visit-btn:active{transform:translateY(4px);box-shadow:0 3px 0 #a65b0b,0 8px 15px #ffb52b33}
+.safe-note{font-size:11px;color:#91a9df;margin:14px 0 4px}
+.section{margin-top:24px}.section-title{font-size:17px;font-weight:850;margin:0 0 12px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.stat{padding:16px;border-radius:18px;border:1px solid #24386f;background:linear-gradient(145deg,#15234c,#101a39);box-shadow:inset 0 1px 1px #ffffff0c}
+.stat .label{font-size:12px;color:var(--muted)}.stat strong{display:block;font-size:19px;margin-top:7px;color:var(--gold)}
+.task-card{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;border:1px solid #263a75;background:linear-gradient(110deg,#15234b,#111a38);margin-bottom:10px}
+.task-icon{width:46px;height:46px;flex:0 0 46px;border-radius:15px;display:grid;place-items:center;font-size:24px;background:linear-gradient(145deg,#243e86,#192550);box-shadow:inset 0 1px 4px #ffffff22}
+.task-copy{flex:1;min-width:0}.task-copy b{font-size:14px}.task-copy p{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+.small-btn{border:1px solid #5065a6;border-radius:12px;padding:10px 12px;background:linear-gradient(145deg,#354c91,#24366d);color:white;font-size:12px;font-weight:800;white-space:nowrap}
+.form-card{padding:17px;border-radius:19px;border:1px solid #263a75;background:linear-gradient(145deg,#15234b,#101a38)}
+label{display:block;color:#afc0e9;font-size:12px;margin:10px 0 6px}
+input,select{width:100%;border:1px solid #33477e;background:#0b1430;color:white;border-radius:12px;padding:13px;outline:none}
+input:focus,select:focus{border-color:#648dff}
+.submit-btn{width:100%;margin-top:13px;padding:14px;border:0;border-radius:13px;background:linear-gradient(180deg,#ffe16a,#ffb52c);color:#171a2c;font-weight:900}
+.message{font-size:12px;color:#ffd66a;line-height:1.5;margin-top:12px;min-height:18px;overflow-wrap:anywhere}
+.bottom-nav{position:fixed;z-index:10;left:50%;transform:translateX(-50%);bottom:10px;width:min(488px,calc(100% - 24px));display:grid;grid-template-columns:repeat(4,1fr);padding:10px 6px;border:1px solid #26396f;border-radius:25px;background:linear-gradient(110deg,#111b3bee,#101832ee);backdrop-filter:blur(18px);box-shadow:0 10px 35px #0009}
+.nav-item{text-align:center;text-decoration:none;color:#91a9df;font-size:11px;font-weight:700;padding:4px 0}.nav-item span{display:block;font-size:23px;margin-bottom:3px;filter:drop-shadow(0 2px 4px #0005)}.nav-item.active{color:var(--gold)}
+.hidden{display:none!important}
+@media(max-width:360px){.balance-number{font-size:29px}.level{font-size:11px;padding:7px}.art{transform:scale(.92);margin-top:-5px;margin-bottom:-5px}.visit-title{font-size:28px}}
+
+/* Native-feeling page switching: only the active screen is visible. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{padding:0}
+.app{height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding-bottom:0}
+.topbar{flex:0 0 76px}
+.balance-card{flex:0 0 auto}
+.screen-stack{position:relative;flex:1;min-height:0;overflow:hidden}
+.app-screen{display:none;height:100%;overflow-y:auto;overscroll-behavior:contain;padding:0 2px 18px;scrollbar-width:none}
+.app-screen::-webkit-scrollbar{display:none}
+.app-screen.active{display:block;animation:screenIn .18s ease-out}
+@keyframes screenIn{from{opacity:.45;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.bottom-nav{bottom:0;border-radius:22px 22px 0 0;width:100%;max-width:520px;padding:9px 6px calc(9px + env(safe-area-inset-bottom));}
+.nav-item{border:0;background:transparent;font-family:inherit;cursor:pointer}
+.screen-heading{padding:16px 5px 20px}
+.screen-heading .eyebrow{font-size:10px;font-weight:900;letter-spacing:2px;color:#6ebdff;margin-bottom:7px}
+.screen-heading h1{font-size:27px;letter-spacing:-.7px;margin:0 0 6px}
+.screen-heading p{font-size:12px;color:var(--muted);line-height:1.5}
+.coming-soon{font-size:9px;font-weight:900;color:#b7a4ff;border:1px solid #6452aa;border-radius:9px;padding:7px}
+.wallet-hero{position:relative;overflow:hidden;border-radius:22px;padding:20px;background:linear-gradient(130deg,#203b83,#19255a 65%,#38266e);border:1px solid #3b56a4;box-shadow:inset 0 1px 1px #fff3,0 12px 24px #0004}
+.wallet-small-label{font-size:12px;color:#c0d0ff}
+.wallet-big{font-size:35px;font-weight:950;margin:6px 0 20px}
+.wallet-big small{font-size:14px;color:var(--gold)}
+.wallet-wallet-icon{position:absolute;right:20px;top:15px;font-size:48px;filter:drop-shadow(0 7px 8px #0005)}
+.wallet-mini-stats{display:flex;gap:25px;border-top:1px solid #ffffff25;padding-top:13px}
+.wallet-mini-stats div{display:flex;flex-direction:column;gap:5px}
+.wallet-mini-stats span{font-size:10px;color:#aebff0}
+.wallet-mini-stats b{font-size:13px;color:var(--gold)}
+.wallet-subtitle{margin:22px 2px 12px}
+.referral-art{position:relative;text-align:center;padding:24px 15px 21px;border:1px solid #31478e;border-radius:22px;background:radial-gradient(circle at 50% 20%,#354e9c,#172653 70%);overflow:hidden}
+.referral-orbit{font-size:68px;filter:drop-shadow(0 8px 8px #0007);margin-bottom:9px}
+.referral-star{position:absolute;right:18%;top:22px;color:var(--gold);font-size:28px}
+.referral-art h2{font-size:21px;margin:0 0 6px}
+.referral-art p{font-size:12px;color:#b8c8f2}
+.referral-code-card{margin:13px 0;padding:17px;border:1px solid #31478e;border-radius:19px;background:linear-gradient(130deg,#152652,#111b3c);text-align:center}
+.referral-code-card .label{font-size:10px;letter-spacing:1.5px;color:#a9bce9}
+.ref-code{font-size:25px;letter-spacing:3px;font-weight:950;color:var(--gold);margin:10px 0}
+.referral-stats{margin-top:12px}
+.notice-box{padding:13px;border-radius:13px;background:#262746;color:#c7d2f5;font-size:11px;line-height:1.5;margin-top:14px}
+
+
+/* ===== Fixes: layout, scrolling, nav ===== */
+html,body{height:100%;width:100%;overflow:hidden;position:fixed;inset:0;-webkit-tap-highlight-color:transparent}
+.app{height:var(--app-h,100dvh);padding-top:max(14px,env(safe-area-inset-top))}
+.screen-stack{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+.app-screen{-webkit-overflow-scrolling:touch;padding-bottom:28px}
+.app-screen.active{display:block}
+.bottom-nav{position:fixed;left:50%;right:auto;transform:translateX(-50%);bottom:0;z-index:50;touch-action:manipulation}
+.nav-item{position:relative;transition:color .15s,transform .15s;-webkit-user-select:none;user-select:none}
+.nav-item:active{transform:scale(.94)}
+.nav-item.active:before{content:"";position:absolute;top:-9px;left:30%;right:30%;height:3px;border-radius:0 0 4px 4px;background:var(--gold)}
+button,.nav-item{touch-action:manipulation}
+input,select{font-size:16px}
+.message:empty{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div><div class="brand">Earn<span>Bd</span> <span style="font-size:17px;color:#37baff">✦</span></div><div class="brand-sub">Telegram Mini App</div></div>
+    <div class="avatar" id="avatar">👤</div>
+  </header>
+
+
+
+  <main class="screen-stack">
+    <!-- HOME SCREEN -->
+    <section class="app-screen active" id="screen-home">
+  <section class="balance-card">
+    <div class="balance-head">
+      <div class="wallet-emoji">👛</div>
+      <div><div class="balance-label">Your Balance</div><div class="balance-number"><span id="balance">0.00</span> <small>BDT</small></div></div>
+      <div class="level">♛ Level 1</div>
+    </div>
+    <div class="welcome">Welcome back, <span id="username">Telegram User</span></div>
+  </section>
+      <div class="visit-hero">
+        <div class="art" aria-label="Visit page illustration">
+          <div class="telegram-orb">➤</div>
+          <div class="phone"><div class="phone-screen"><div class="browser-dots"></div><div class="globe">🌐</div><div class="mini-visit">Visit Page</div></div></div>
+          <div class="coin">★</div><div class="plant">🪴</div><div class="spark">✦</div>
+        </div>
+        <div class="visit-title">Visit <span>Page</span></div>
+        <p class="visit-desc">Tap the button below and visit the page. Complete eligible tasks to request your reward!</p>
+      </div>
+
+      <section class="reward-strip">
+        <div class="reward-item"><div class="reward-icon">🪙</div><div><div class="reward-label">Reward</div><div class="reward-value" id="rewardValue">+0.50 BDT</div></div></div>
+        <div class="reward-item"><div class="reward-icon">◷</div><div><div class="reward-label">Estimated time</div><div class="reward-value blue">10–30 Seconds</div></div></div>
+      </section>
+      <button class="visit-btn" id="watchAd">↗ &nbsp; Visit Now</button>
+      <div class="safe-note">🛡 You will be redirected to an eligible advertisement.</div>
+      <div class="message" id="message" role="status"></div>
+
+      <section class="section">
+        <h3 class="section-title">Your Overview</h3>
+        <div class="stats-grid">
+          <div class="stat"><div class="label">Total Earned</div><strong id="totalEarned">0.00 BDT</strong></div>
+          <div class="stat"><div class="label">Referrals</div><strong id="referrals">0</strong></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- TASKS SCREEN -->
+    <section class="app-screen" id="screen-tasks">
+      <div class="screen-heading"><div class="eyebrow">EARN REWARDS</div><h1>Earn More</h1><p>Complete activities and submit your reward requests.</p></div>
+      <div class="task-card"><div class="task-icon">📺</div><div class="task-copy"><b>Watch Advertisement</b><p>Watch an available BengalAds ad and submit a reward request.</p></div><button class="small-btn" id="watchAdTask">Watch</button></div>
+      <div class="task-card"><div class="task-icon">🎁</div><div class="task-copy"><b>Daily Check-in</b><p>Send your daily bonus request for review.</p></div><button class="small-btn" id="dailyBonus">Claim</button></div>
+      <div class="task-card"><div class="task-icon">⭐</div><div class="task-copy"><b>Special Tasks</b><p>New earning activities will appear here when enabled by admin.</p></div><span class="coming-soon">SOON</span></div>
+      <div class="message" id="taskMessage" role="status"></div>
+    </section>
+
+    <!-- WALLET SCREEN -->
+    <section class="app-screen" id="screen-wallet">
+      <div class="screen-heading"><div class="eyebrow">YOUR MONEY</div><h1>My Wallet</h1><p>Check your balance and manage withdrawals.</p></div>
+      <div class="wallet-hero">
+        <div class="wallet-small-label">Available Balance</div>
+        <div class="wallet-big"><span id="walletBalance">0.00</span> <small>BDT</small></div>
+        <div class="wallet-wallet-icon">👛</div>
+        <div class="wallet-mini-stats"><div><span>Total Earned</span><b id="walletEarned">0.00 BDT</b></div><div><span>Withdrawals</span><b id="withdrawnTotal">0.00 BDT</b></div></div>
+      </div>
+      <div class="section-title wallet-subtitle">Request Withdrawal</div>
+      <div class="form-card">
+        <label for="withdrawAmount">Withdrawal amount (BDT)</label>
+        <input type="number" id="withdrawAmount" min="1" step="0.01" placeholder="Enter amount">
+        <label for="paymentMethod">Payment method</label>
+        <select id="paymentMethod"><option value="bKash">bKash</option><option value="Nagad">Nagad</option><option value="Rocket">Rocket</option></select>
+        <label for="accountNumber">Payment account number</label>
+        <input type="tel" id="accountNumber" placeholder="01XXXXXXXXX">
+        <button class="submit-btn" id="withdrawBtn">Submit Withdrawal Request</button>
+        <p class="safe-note">Requests are reviewed by the administrator. Submission does not guarantee payment.</p>
+      </div>
+      <div class="message" id="walletMessage" role="status"></div>
+    </section>
+
+    <!-- REFERRAL SCREEN -->
+    <section class="app-screen" id="screen-referral">
+      <div class="screen-heading"><div class="eyebrow">GROW TOGETHER</div><h1>Invite Friends</h1><p>Share your invite code with friends.</p></div>
+      <div class="referral-art"><div class="referral-orbit">👥</div><div class="referral-star">✦</div><h2>Earn Together</h2><p>Invite friends to join the EarnBd community.</p></div>
+      <div class="referral-code-card">
+        <div class="label">YOUR INVITE CODE</div>
+        <div class="ref-code" id="referralCode">CONNECTING...</div>
+        <button class="submit-btn" id="copyReferral">Copy Referral Code</button>
+      </div>
+      <div class="stats-grid referral-stats">
+        <div class="stat"><div class="label">Total Referrals</div><strong id="referralCount">0</strong></div>
+        <div class="stat"><div class="label">Referral Earnings</div><strong id="referralEarnings">0.00 BDT</strong></div>
+      </div>
+      <div class="notice-box">Referral rewards and invite tracking will be activated through the secure Firebase backend.</div>
+      <div class="message" id="referralMessage" role="status"></div>
+    </section>
+  </main>
+
+
+<nav class="bottom-nav">
+  <button class="nav-item active" type="button" data-screen="home"><span>⌂</span>Home</button>
+  <button class="nav-item" type="button" data-screen="tasks"><span>▤</span>Tasks</button>
+  <button class="nav-item" type="button" data-screen="wallet"><span>▣</span>Wallet</button>
+  <button class="nav-item" type="button" data-screen="referral"><span>♧</span>Referral</button>
+</nav>
+
+<script>
+(function(){
+  var tg=window.Telegram&&window.Telegram.WebApp;
+  try{tg&&tg.ready();tg&&tg.expand();tg&&tg.disableVerticalSwipes&&tg.disableVerticalSwipes();}catch(e){}
+  function fit(){
+    var h=(tg&&tg.viewportStableHeight)||window.innerHeight;
+    document.documentElement.style.setProperty('--app-h',h+'px');
+  }
+  fit();window.addEventListener('resize',fit);
+  tg&&tg.onEvent&&tg.onEvent('viewportChanged',fit);
+  function showScreen(name){
+    document.querySelectorAll('.app-screen').forEach(function(el){
+      var on=el.id==='screen-'+name;
+      el.classList.toggle('active',on);
+      if(on)el.scrollTop=0;
+    });
+    document.querySelectorAll('.nav-item').forEach(function(b){
+      b.classList.toggle('active',b.dataset.screen===name);
+    });
+    try{tg&&tg.HapticFeedback&&tg.HapticFeedback.selectionChanged();}catch(e){}
+  }
+  window.showScreen=showScreen;
+  document.querySelectorAll('.nav-item').forEach(function(b){
+    b.addEventListener('click',function(){showScreen(b.dataset.screen);});
+  });
+})();
+</script>
+<script type="module">
+let firebaseConfig = {};
+try { ({ firebaseConfig } = await import("./firebase-config.js")); } catch (e) { console.warn("firebase-config.js not found", e); }
+let initializeApp, getAuth, signInAnonymously, onAuthStateChanged, getFirestore, doc, getDoc, setDoc, collection, addDoc, serverTimestamp, onSnapshot;
+const isConfigured = !!(firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_FIREBASE_API_KEY");
+if (isConfigured) {
+  try {
+    ({ initializeApp } = await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js"));
+    ({ getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js"));
+    ({ getFirestore, doc, getDoc, setDoc, collection, addDoc, serverTimestamp, onSnapshot } = await import("https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"));
+  } catch (e) { console.warn("Firebase SDK load failed", e); }
+}
+
+const $ = id => document.getElementById(id);
+const tg = window.Telegram?.WebApp;
+
+
+const configured = isConfigured && !!initializeApp;
+let auth = null, db = null, currentUser = null, settings = {}, profile = {};
+const say = text => $("message").textContent = text;
+
+if (configured) {
+  const firebaseApp = initializeApp(firebaseConfig);
+  auth = getAuth(firebaseApp);
+  db = getFirestore(firebaseApp);
+}
+
+const tgUser = tg?.initDataUnsafe?.user;
+if (tgUser) {
+  $("username").textContent = tgUser.username ? "@" + tgUser.username : (tgUser.first_name || "Telegram User");
+  $("avatar").textContent = (tgUser.first_name || "U").charAt(0).toUpperCase();
+}
+
+function setRewardText() {
+  const amount = Number(settings.adReward || 0.5);
+  $("rewardValue").textContent = "+" + amount.toFixed(2) + " BDT";
+}
+
+async function startApp() {
+  if (!configured) {
+    say("Setup required: পরবর্তী ধাপে firebase-config.js-এ Firebase config বসাতে হবে।");
+    return;
+  }
+  try {
+    await signInAnonymously(auth);
+  } catch (error) {
+    say("Firebase connection error: " + error.message);
+  }
+}
+
+if (auth) onAuthStateChanged(auth, async user => {
+  if (!user || !db) return;
+  currentUser = user;
+  const userRef = doc(db, "users", user.uid);
+  try {
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      await setDoc(userRef, { balance: 0, totalEarned: 0, referrals: 0, createdAt: serverTimestamp() });
+    }
+    onSnapshot(userRef, s => {
+      profile = s.data() || {};
+      const balance = Number(profile.balance || 0).toFixed(2);
+      const earned = Number(profile.totalEarned || 0).toFixed(2) + " BDT";
+      $("balance").textContent = balance;
+      $("walletBalance").textContent = balance;
+      $("totalEarned").textContent = earned;
+      $("walletEarned").textContent = earned;
+      $("referrals").textContent = profile.referrals || 0;
+      $("referralCount").textContent = profile.referrals || 0;
+      $("referralEarnings").textContent = Number(profile.referralEarnings || 0).toFixed(2) + " BDT";
+      const code = user.uid.slice(0, 8).toUpperCase();
+      $("referralCode").textContent = code;
+    });
+    onSnapshot(doc(db, "public", "appSettings"), s => {
+      settings = s.data() || {};
+      setRewardText();
+    });
+  } catch (error) { say("Account setup error: " + error.message); }
+});
+
+// BengalAds SDK integration. Client-side "closed" status is NOT proof of a paid impression.
+// Wallet credit must be performed by a trusted server after verified ad network confirmation.
+async function watchAdvertisement() {
+  if (!currentUser || !db) { say("Firebase connection is not ready."); return; }
+  if (!settings.adsEnabled || !settings.bengalAdsAppId || !settings.bengalAdsFormatId) {
+    say("BengalAds এখনো Admin Panel থেকে configure করা হয়নি।");
+    return;
+  }
+  try {
+    if (!window.BengalAds) throw new Error("BengalAds SDK could not be loaded.");
+    window.BengalAds.init({ appId: settings.bengalAdsAppId, formatId: settings.bengalAdsFormatId });
+    const result = await window.BengalAds.showInterstitial();
+    if (result?.status === "closed") {
+      await addDoc(collection(db, "adRewardRequests"), {
+        uid: currentUser.uid, status: "pending_review", sdkStatus: "closed", createdAt: serverTimestamp()
+      });
+      say("Ad session finished. Reward request submitted for review.");
+    } else {
+      say("No eligible ad is available right now.");
+    }
+  } catch (error) { say("BengalAds error: " + error.message); }
+}
+$("watchAd").addEventListener("click", watchAdvertisement);
+$("watchAdTask").addEventListener("click", watchAdvertisement);
+
+async function claimDaily() {
+  if (!currentUser || !db) { say("Firebase connection is not ready."); return; }
+  try {
+    await addDoc(collection(db, "bonusRequests"), {
+      uid: currentUser.uid, type: "daily", status: "pending_review", createdAt: serverTimestamp()
+    });
+    $("taskMessage").textContent = "Daily bonus request submitted for admin review.";
+  } catch (error) { $("taskMessage").textContent = "Request failed: " + error.message; }
+}
+$("dailyBonus").addEventListener("click", claimDaily);
+
+async function copyReferral() {
+  if (!currentUser) { $("referralMessage").textContent = "Connect to Firebase first."; return; }
+  const code = currentUser.uid.slice(0, 8).toUpperCase();
+  try { await navigator.clipboard.writeText(code); $("referralMessage").textContent = "Referral code copied: " + code; }
+  catch { $("referralMessage").textContent = "Your referral code: " + code; }
+}
+$("copyReferral").addEventListener("click", copyReferral);
+
+$("withdrawBtn").addEventListener("click", async () => {
+  if (!currentUser || !db) { $("walletMessage").textContent = "Firebase connection is not ready."; return; }
+  const amount = Number($("withdrawAmount").value);
+  const method = $("paymentMethod").value;
+  const account = $("accountNumber").value.trim();
+  if (!Number.isFinite(amount) || amount <= 0 || !account) { $("walletMessage").textContent = "Enter a valid amount and payment account."; return; }
+  if (amount > Number(profile.balance || 0)) { $("walletMessage").textContent = "Insufficient balance."; return; }
+  try {
+    await addDoc(collection(db, "withdrawalRequests"), {
+      uid: currentUser.uid, amount, method, account, status: "pending", createdAt: serverTimestamp()
+    });
+    $("walletMessage").textContent = "Withdrawal request submitted for admin review.";
+    $("withdrawAmount").value = ""; $("accountNumber").value = "";
+  } catch (error) { $("walletMessage").textContent = "Withdrawal request failed: " + error.message; }
+});
+
+startApp();
+</script>
+</body>
+</html>
