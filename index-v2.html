@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CoinEarn Pro - Telegram Mini App</title>
+    
+    <!-- Telegram WebApp Official SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Monetag Telegram Mini App SDK (Zone ID: 12308086) -->
+    <script src='//libtl.com/sdk.js' data-zone='12308086' data-sdk='show_12308086'></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; user-select: none; }
+        body {
+            background-color: #0d1117;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 18px 14px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 430px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* User Header */
+        .header-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info h3 { font-size: 16px; color: #f0f6fc; font-weight: 700; }
+        .user-info p { font-size: 12px; color: #8b949e; margin-top: 2px; }
+        .status-badge {
+            background: rgba(35, 134, 54, 0.2);
+            color: #3fb950;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(63, 185, 80, 0.4);
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, #1f6feb 0%, #2563eb 100%);
+            border-radius: 16px;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(31, 111, 235, 0.28);
+        }
+        .balance-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; font-weight: 600; }
+        .balance-amount { font-size: 40px; font-weight: 800; margin: 6px 0; }
+        .balance-sub { font-size: 12px; opacity: 0.9; }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .stat-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-val { font-size: 18px; font-weight: 700; color: #58a6ff; }
+        .stat-lbl { font-size: 11px; color: #8b949e; margin-top: 2px; }
+
+        /* Task / Ad Buttons Section */
+        .tasks-section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .section-title { font-size: 15px; font-weight: 700; color: #e6edf3; margin-bottom: 2px; }
+
+        .ad-btn {
+            width: 100%;
+            padding: 14px 15px;
+            border: none;
+            border-radius: 11px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.15s ease, opacity 0.2s;
+        }
+        .ad-btn:active { transform: scale(0.97); }
+        .ad-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-left { display: flex; flex-direction: column; text-align: left; }
+        .btn-sub { font-size: 11px; font-weight: 400; opacity: 0.85; margin-top: 2px; }
+
+        .btn-interstitial { background: #238636; }
+        .btn-popup { background: #d97706; }
+        .btn-direct { background: #e11d48; }
+        .btn-inapp { background: #7c3aed; }
+
+        .reward-tag {
+            background: rgba(0, 0, 0, 0.28);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #238636;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+            z-index: 1000;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- User Profile Header -->
+        <div class="header-card">
+            <div class="user-info">
+                <h3 id="tgUserName">Telegram User</h3>
+                <p id="tgUserId">ID: Guest</p>
+            </div>
+            <span class="status-badge">● Online</span>
+        </div>
+
+        <!-- Points Balance -->
+        <div class="balance-card">
+            <div class="balance-label">Total Balance</div>
+            <div class="balance-amount" id="pointsDisplay">0</div>
+            <div class="balance-sub">প্রতিটি টাস্ক সম্পন্ন করে কয়েন সংগ্রহ করুন</div>
+        </div>
+
+        <!-- Ad Counter Stats -->
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-val" id="adsWatchedDisplay">0</div>
+                <div class="stat-lbl">Completed Ads</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">Auto Active</div>
+                <div class="stat-lbl">In-App Interstitial</div>
+            </div>
+        </div>
+
+        <!-- Monetag Ad Formats Section -->
+        <div class="tasks-section">
+            <div class="section-title">Earn Points (All Monetag Formats)</div>
+
+            <!-- ১. Rewarded Interstitial -->
+            <button class="ad-btn btn-interstitial" id="btnInterstitial" onclick="runRewardedInterstitial()">
+                <div class="btn-left">
+                    <span>🎬 Rewarded Interstitial</span>
+                    <span class="btn-sub">সম্পূর্ণ বিজ্ঞাপন দেখে রিওয়ার্ড নিন</span>
+                </div>
+                <span class="reward-tag">+50 Pts</span>
+            </button>
+
+            <!-- ২. Rewarded Popup -->
+            <button class="ad-btn btn-popup" id="btnPopup" onclick="runRewardedPopup()">
+                <div class="btn-left">
+                    <span>🚀 Rewarded Popup Offer</span>
+                    <span class="btn-sub">স্পেশাল পপআপ অফার ভিজিট করুন</span>
+                </div>
+                <span class="reward-tag">+100 Pts</span>
+            </button>
+
+            <!-- ৩. Direct Link / SmartLink -->
+            <a href="https://uplcm.com/4/12334132" target="_blank" rel="noopener noreferrer" class="ad-btn btn-direct" onclick="runDirectLink()">
+                <div class="btn-left">
+                    <span>🔗 Direct Sponsor Link</span>
+                    <span class="btn-sub">স্পন্সর পেজ ওপেন করে বোনাস নিন</span>
+                </div>
+                <span class="reward-tag">+80 Pts</span>
+            </a>
+
+            <!-- ৪. Manual In-App Interstitial Trigger -->
+            <button class="ad-btn btn-inapp" id="btnInApp" onclick="runManualInApp()">
+                <div class="btn-left">
+                    <span>⚡ Instant In-App Ad</span>
+                    <span class="btn-sub">তাৎক্ষণিক ইন্টারস্টিশিয়াল বিজ্ঞাপন</span>
+                </div>
+                <span class="reward-tag">+30 Pts</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="toast">Points Added!</div>
+
+    <script>
+        // Telegram WebApp ইনিশিয়ালাইজেশন
+        const tg = window.Telegram ? window.Telegram.WebApp : null;
+        if (tg) {
+            tg.expand();
+            tg.ready();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                document.getElementById('tgUserName').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+                document.getElementById('tgUserId').innerText = 'ID: ' + user.id;
+            }
+        }
+
+        // লোকাল স্টোরেজ থেকে পয়েন্ট ও অ্যাড কাউন্ট লোড
+        let points = parseInt(localStorage.getItem('user_points')) || 0;
+        let adsWatched = parseInt(localStorage.getItem('ads_watched')) || 0;
+
+        document.getElementById('pointsDisplay').innerText = points;
+        document.getElementById('adsWatchedDisplay').innerText = adsWatched;
+
+        function rewardUser(amount, message) {
+            points += amount;
+            adsWatched += 1;
+            localStorage.setItem('user_points', points);
+            localStorage.setItem('ads_watched', adsWatched);
+            document.getElementById('pointsDisplay').innerText = points;
+            document.getElementById('adsWatchedDisplay').innerText = adsWatched;
+            showToast(message || `+${amount} Points যোগ হয়েছে!`);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        // =========================================================
+        // ১. REWARDED INTERSTITIAL (Zone: 12308086)
+        // =========================================================
+        function runRewardedInterstitial() {
+            const btn = document.getElementById('btnInterstitial');
+            btn.disabled = true;
+
+            if (typeof show_12308086 === 'function') {
+                show_12308086().then(() => {
+                    rewardUser(50, 'You have seen an ad! +50 Pts Added');
+                }).catch(e => {
+                    console.log('Rewarded Interstitial error:', e);
+                }).finally(() => {
+                    btn.disabled = false;
+                });
+            } else {
+                alert('Monetag SDK লোড হচ্ছে, অনুগ্রহ করে ইন্টারনেট কানেকশন চেক করুন।');
+                btn.disabled = false;
+            }
+        }
+
+        // =========================================================
+        // ২. REWARDED POPUP (Zone: 12308086)
+        // =========================================================
+        function runRewardedPopup() {
+            const btn = document.getElementById('btnPopup');
+            btn.disabled = true;
+
+            if (typeof show_12308086 === 'function') {
+                show_12308086('pop').then(() => {
+                    rewardUser(100, 'Popup Offer Completed! +100 Pts Added');
+                }).catch(e => {
+                    console.log('Rewarded Popup error:', e);
+                }).finally(() => {
+                    btn.disabled = false;
+                });
+            } else {
+                alert('Monetag SDK লোড হচ্ছে, অনুগ্রহ করে ইন্টারনেট কানেকশন চেক করুন।');
+                btn.disabled = false;
+            }
+        }
+
+        // =========================================================
+        // ৩. DIRECT LINK REWARD (https://uplcm.com/4/12334132)
+        // =========================================================
+        function runDirectLink() {
+            setTimeout(() => {
+                rewardUser(80, 'Sponsor Link Visited! +80 Pts Added');
+            }, 2500);
+        }
+
+        // =========================================================
+        // ৪. IN-APP INTERSTITIAL (Automatic & Manual - Zone: 12308086)
+        // =========================================================
+        function startAutoInAppInterstitial() {
+            if (typeof show_12308086 === 'function') {
+                show_12308086({
+                    type: 'inApp',
+                    inAppSettings: {
+                        frequency: 2,
+                        capping: 0.1,
+                        interval: 30,
+                        timeout: 5,
+                        everyPage: false
+                    }
+                });
+            }
+        }
+
+        function runManualInApp() {
+            if (typeof show_12308086 === 'function') {
+                show_12308086({
+                    type: 'inApp',
+                    inAppSettings: {
+                        frequency: 1,
+                        capping: 0,
+                        interval: 0,
+                        timeout: 0,
+                        everyPage: false
+                    }
+                });
+                setTimeout(() => {
+                    rewardUser(30, 'In-App Ad Triggered! +30 Pts Added');
+                }, 2000);
+            }
+        }
+
+        // পেজ লোড হলে স্বয়ংক্রিয়ভাবে In-App Interstitial চালু হবে
+        window.addEventListener('load', () => {
+            setTimeout(startAutoInAppInterstitial, 1500);
+        });
+    </script>
+</body>
+</html>
