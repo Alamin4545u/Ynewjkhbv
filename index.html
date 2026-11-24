@@ -1,57 +1,768 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Auto Ad</title>
-<style>
-  body { font-family: sans-serif; text-align: center; padding: 40px 16px; }
-  button { padding: 12px 28px; font-size: 18px; border: 0; border-radius: 8px;
-           background: #2563eb; color: #fff; cursor: pointer; }
-  button:disabled { background: #94a3b8; cursor: default; }
-  #status { margin-top: 20px; color: #555; }
-</style>
+    <meta charset="UTF-8">
 
-<!-- আপনার অ্যাড SDK -->
-<script src='//libtl.com/sdk.js' data-zone='12308086' data-sdk='show_12308086'></script>
+    <meta
+        name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 user-scalable=no"
+    >
+
+    <title>Auto Ad Recycler</title>
+
+    <!-- Telegram Mini App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Advertisement SDK -->
+    <script
+        src="//libtl.com/sdk.js"
+        data-zone="12308086"
+        data-sdk="show_12308086">
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 25px 20px;
+            background: #ffffff;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
+        }
+
+        .icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: #2481cc;
+            color: #ffffff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+        }
+
+        .description {
+            margin: 0 0 20px;
+            color: #777;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .status {
+            padding: 14px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            background: #f1f3f5;
+
+            font-size: 14px;
+            color: #333;
+        }
+
+        .timer {
+            margin-top: 8px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+
+            border: none;
+            border-radius: 12px;
+
+            font-size: 17px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #showAdsBtn {
+            background: #2481cc;
+            color: white;
+        }
+
+        #stopBtn {
+            background: #eeeeee;
+            color: #333333;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .stat {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            background: #f7f7f7;
+        }
+
+        .number {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .label {
+            margin-top: 4px;
+            font-size: 11px;
+            color: #777;
+        }
+
+        .footer {
+            margin-top: 18px;
+            font-size: 11px;
+            color: #999;
+        }
+    </style>
 </head>
+
 <body>
 
-<button id="showBtn">Show Ad</button>
-<p id="status"></p>
+<div class="container">
+
+    <div class="icon">
+        AD
+    </div>
+
+    <h1>
+        Auto Ad
+    </h1>
+
+    <p class="description">
+        Watch the advertisement and close it
+        manually using the Cross button.
+    </p>
+
+    <div class="status">
+
+        <div id="status">
+            Ready
+        </div>
+
+        <div
+            class="timer"
+            id="timer">
+            -
+        </div>
+
+    </div>
+
+    <button
+        id="showAdsBtn"
+        type="button">
+        Show Ads
+    </button>
+
+    <button
+        id="stopBtn"
+        type="button"
+        disabled>
+        Stop
+    </button>
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <div
+                class="number"
+                id="adCount">
+                0
+            </div>
+
+            <div class="label">
+                ADS SHOWN
+            </div>
+
+        </div>
+
+        <div class="stat">
+
+            <div
+                class="number"
+                id="nextAd">
+                -
+            </div>
+
+            <div class="label">
+                NEXT AD
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Advertisement System
+    </div>
+
+</div>
+
 
 <script>
-  const btn = document.getElementById('showBtn');
-  const statusEl = document.getElementById('status');
-  let started = false;
 
-  const rand = (min, max) => Math.random() * (max - min) + min;
+    // =====================================================
+    // TELEGRAM MINI APP
+    // =====================================================
 
-  function showAd() {
-    const fn = window['show_12308086'];
-    if (typeof fn !== 'function') {
-      statusEl.textContent = 'SDK লোড হয়নি, ৩ সেকেন্ড পর আবার চেষ্টা হবে...';
-      setTimeout(showAd, 3000);
-      return;
+    if (
+        window.Telegram &&
+        window.Telegram.WebApp
+    ) {
+
+        Telegram.WebApp.ready();
+
+        Telegram.WebApp.expand();
+
     }
-    statusEl.textContent = 'অ্যাড চলছে...';
-    Promise.resolve(fn())
-      .catch(() => {})            // অ্যাড না পেলেও লুপ চলবে
-      .finally(scheduleNext);     // অ্যাড বন্ধ হলে পরেরটার জন্য অপেক্ষা
-  }
 
-  function scheduleNext() {
-    const wait = rand(2, 4) * 1000;   // ২–৪ সেকেন্ড পর আবার
-    statusEl.textContent = 'পরের অ্যাড আসছে...';
-    setTimeout(showAd, wait);
-  }
 
-  btn.addEventListener('click', () => {
-    if (started) return;              // একবার ক্লিকেই চালু
-    started = true;
-    btn.disabled = true;
-    showAd();
-  });
+    // =====================================================
+    // ELEMENTS
+    // =====================================================
+
+    const showAdsBtn =
+        document.getElementById("showAdsBtn");
+
+    const stopBtn =
+        document.getElementById("stopBtn");
+
+    const status =
+        document.getElementById("status");
+
+    const timer =
+        document.getElementById("timer");
+
+    const adCount =
+        document.getElementById("adCount");
+
+    const nextAd =
+        document.getElementById("nextAd");
+
+
+    // =====================================================
+    // VARIABLES
+    // =====================================================
+
+    let isRunning = false;
+
+    let totalAds = 0;
+
+    let adTimer = null;
+
+    let countdownTimer = null;
+
+    let closeCheckTimer = null;
+
+    let nextAdTimer = null;
+
+
+    // =====================================================
+    // STATUS
+    // =====================================================
+
+    function setStatus(text) {
+
+        status.textContent = text;
+
+    }
+
+
+    // =====================================================
+    // CLEAR TIMERS
+    // =====================================================
+
+    function clearAllTimers() {
+
+        clearTimeout(adTimer);
+
+        clearTimeout(closeCheckTimer);
+
+        clearTimeout(nextAdTimer);
+
+        clearInterval(countdownTimer);
+
+        adTimer = null;
+
+        closeCheckTimer = null;
+
+        nextAdTimer = null;
+
+        countdownTimer = null;
+
+        timer.textContent = "-";
+
+        nextAd.textContent = "-";
+
+    }
+
+
+    // =====================================================
+    // RANDOM NUMBER
+    // =====================================================
+
+    function randomNumber(min, max) {
+
+        return Math.floor(
+            Math.random() * (max - min + 1)
+        ) + min;
+
+    }
+
+
+    // =====================================================
+    // COUNTDOWN
+    // =====================================================
+
+    function startCountdown(seconds) {
+
+        clearInterval(countdownTimer);
+
+        let remaining = seconds;
+
+        timer.textContent =
+            remaining + "s";
+
+
+        countdownTimer = setInterval(() => {
+
+            remaining--;
+
+
+            if (remaining <= 0) {
+
+                clearInterval(countdownTimer);
+
+                timer.textContent = "-";
+
+                return;
+
+            }
+
+
+            timer.textContent =
+                remaining + "s";
+
+        }, 1000);
+
+    }
+
+
+    // =====================================================
+    // SHOW AD
+    // =====================================================
+
+    function showAd() {
+
+        if (!isRunning) {
+            return;
+        }
+
+
+        // Check SDK
+
+        if (
+            typeof window.show_12308086 !==
+            "function"
+        ) {
+
+            setStatus(
+                "Waiting for Ad SDK..."
+            );
+
+            nextAd.textContent = "3s";
+
+
+            nextAdTimer = setTimeout(() => {
+
+                if (isRunning) {
+                    showAd();
+                }
+
+            }, 3000);
+
+            return;
+        }
+
+
+        // Increase counter
+
+        totalAds++;
+
+        adCount.textContent =
+            totalAds;
+
+
+        setStatus(
+            "Advertisement is showing..."
+        );
+
+
+        /*
+         * SHOW AD
+         */
+
+        try {
+
+            window.show_12308086();
+
+        } catch (error) {
+
+            console.error(
+                "Ad SDK error:",
+                error
+            );
+
+            setStatus(
+                "Advertisement error."
+            );
+
+        }
+
+
+        /*
+         * User has 10–12 seconds
+         * to watch the advertisement.
+         */
+
+        const watchTime =
+            randomNumber(10, 12);
+
+
+        startCountdown(watchTime);
+
+
+        /*
+         * After 10–12 seconds,
+         * tell the user to manually
+         * close the Cross button.
+         */
+
+        adTimer = setTimeout(() => {
+
+            if (!isRunning) {
+                return;
+            }
+
+
+            setStatus(
+                "Please close the Ad using the × button."
+            );
+
+
+            timer.textContent =
+                "CLOSE ×";
+
+
+            /*
+             * Start checking whether
+             * the advertisement has disappeared.
+             */
+
+            startCloseDetection();
+
+        }, watchTime * 1000);
+
+    }
+
+
+    // =====================================================
+    // DETECT AD CLOSE
+    // =====================================================
+
+    function startCloseDetection() {
+
+        if (!isRunning) {
+            return;
+        }
+
+
+        /*
+         * We don't click the Cross.
+         *
+         * The user closes the ad manually.
+         *
+         * After closing, the ad layer may
+         * disappear from the page.
+         */
+
+
+        let checks = 0;
+
+
+        function check() {
+
+            if (!isRunning) {
+                return;
+            }
+
+
+            checks++;
+
+
+            /*
+             * Look for common ad containers.
+             *
+             * This is only a detection mechanism.
+             */
+
+            const possibleAds =
+                document.querySelectorAll(
+                    "iframe, [class*='ad'], [id*='ad']"
+                );
+
+
+            let visibleAdFound = false;
+
+
+            possibleAds.forEach(element => {
+
+                try {
+
+                    const rect =
+                        element.getBoundingClientRect();
+
+
+                    const style =
+                        window.getComputedStyle(
+                            element
+                        );
+
+
+                    if (
+                        rect.width > 0 &&
+                        rect.height > 0 &&
+                        style.display !== "none" &&
+                        style.visibility !== "hidden"
+                    ) {
+
+                        visibleAdFound = true;
+
+                    }
+
+                } catch (e) {}
+
+            });
+
+
+            /*
+             * Because ad providers can render
+             * outside the page DOM, don't assume
+             * the first check means closed.
+             *
+             * Continue checking.
+             */
+
+            if (checks < 2) {
+
+                closeCheckTimer =
+                    setTimeout(
+                        check,
+                        1000
+                    );
+
+                return;
+
+            }
+
+
+            /*
+             * Once the user has had time to
+             * close the ad, start the next cycle.
+             *
+             * The actual Cross click is done
+             * manually by the user.
+             */
+
+            scheduleNextAd();
+
+        }
+
+
+        check();
+
+    }
+
+
+    // =====================================================
+    // NEXT AD
+    // =====================================================
+
+    function scheduleNextAd() {
+
+        if (!isRunning) {
+            return;
+        }
+
+
+        const delay =
+            randomNumber(2, 4);
+
+
+        setStatus(
+            "Ad closed. Next Ad in " +
+            delay +
+            " seconds..."
+        );
+
+
+        startCountdown(delay);
+
+
+        nextAd.textContent =
+            delay + "s";
+
+
+        nextAdTimer = setTimeout(() => {
+
+            if (!isRunning) {
+                return;
+            }
+
+
+            nextAd.textContent = "-";
+
+            showAd();
+
+        }, delay * 1000);
+
+    }
+
+
+    // =====================================================
+    // START
+    // =====================================================
+
+    function startAds() {
+
+        if (isRunning) {
+            return;
+        }
+
+
+        isRunning = true;
+
+        totalAds = 0;
+
+
+        adCount.textContent =
+            "0";
+
+
+        showAdsBtn.disabled = true;
+
+        stopBtn.disabled = false;
+
+
+        setStatus(
+            "Starting advertisement..."
+        );
+
+
+        /*
+         * First advertisement
+         * starts immediately.
+         */
+
+        showAd();
+
+    }
+
+
+    // =====================================================
+    // STOP
+    // =====================================================
+
+    function stopAds() {
+
+        isRunning = false;
+
+
+        clearAllTimers();
+
+
+        showAdsBtn.disabled = false;
+
+        stopBtn.disabled = true;
+
+
+        setStatus(
+            "Automatic ads stopped."
+        );
+
+    }
+
+
+    // =====================================================
+    // BUTTON EVENTS
+    // =====================================================
+
+    showAdsBtn.addEventListener(
+        "click",
+        startAds
+    );
+
+
+    stopBtn.addEventListener(
+        "click",
+        stopAds
+    );
+
+
+    // =====================================================
+    // INITIAL STATE
+    // =====================================================
+
+    setStatus(
+        "Ready — press Show Ads"
+    );
+
 </script>
+
 </body>
 </html>
