@@ -1,404 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto Ad</title>
+<style>
+  body { font-family: sans-serif; text-align: center; padding: 40px 16px; }
+  button { padding: 12px 28px; font-size: 18px; border: 0; border-radius: 8px;
+           background: #2563eb; color: #fff; cursor: pointer; }
+  button:disabled { background: #94a3b8; cursor: default; }
+  #status { margin-top: 20px; color: #555; }
+</style>
 
-  <title>Telegram Ad Demo</title>
-
-  <!-- Telegram Mini App SDK -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- YOUR AD SDK -->
-  <script
-    src="//libtl.com/sdk.js"
-    data-zone="12308086"
-    data-sdk="show_12308086">
-  </script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f4f7;
-      min-height: 100vh;
-    }
-
-    .app {
-      max-width: 430px;
-      min-height: 100vh;
-      margin: auto;
-      padding: 30px 20px;
-      background: #ffffff;
-      text-align: center;
-    }
-
-    .logo {
-      width: 80px;
-      height: 80px;
-      margin: 25px auto 20px;
-
-      border-radius: 50%;
-      background: #229ed9;
-      color: #ffffff;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      font-size: 26px;
-      font-weight: bold;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      font-size: 25px;
-    }
-
-    .description {
-      margin-bottom: 30px;
-      color: #666;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    #showAdBtn {
-      width: 100%;
-      padding: 16px;
-
-      border: none;
-      border-radius: 14px;
-
-      background: #229ed9;
-      color: white;
-
-      font-size: 18px;
-      font-weight: bold;
-
-      cursor: pointer;
-    }
-
-    #showAdBtn:disabled {
-      background: #999;
-      cursor: not-allowed;
-    }
-
-    .status {
-      margin-top: 20px;
-      padding: 15px;
-
-      border-radius: 12px;
-      background: #f1f3f5;
-
-      color: #333;
-      font-size: 14px;
-    }
-
-    #timer {
-      margin-top: 8px;
-      color: #229ed9;
-      font-weight: bold;
-    }
-  </style>
-
+<!-- আপনার অ্যাড SDK -->
+<script src='//libtl.com/sdk.js' data-zone='12308086' data-sdk='show_12308086'></script>
 </head>
-
 <body>
 
-  <div class="app">
+<button id="showBtn">Show Ad</button>
+<p id="status"></p>
 
-    <div class="logo">
-      AD
-    </div>
+<script>
+  const btn = document.getElementById('showBtn');
+  const statusEl = document.getElementById('status');
+  let started = false;
 
-    <h1>
-      Ad Demo Mini App
-    </h1>
+  const rand = (min, max) => Math.random() * (max - min) + min;
 
-    <p class="description">
-      Advertisement demo powered by the configured ad SDK.
-    </p>
-
-    <button id="showAdBtn">
-      Show Ad
-    </button>
-
-    <div class="status">
-
-      <div id="statusText">
-        Ready
-      </div>
-
-      <div id="timer">
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <script>
-
-    /* =========================================
-       TELEGRAM
-    ========================================= */
-
-    const tg = window.Telegram?.WebApp;
-
-    if (tg) {
-      tg.ready();
-      tg.expand();
+  function showAd() {
+    const fn = window['show_12308086'];
+    if (typeof fn !== 'function') {
+      statusEl.textContent = 'SDK লোড হয়নি, ৩ সেকেন্ড পর আবার চেষ্টা হবে...';
+      setTimeout(showAd, 3000);
+      return;
     }
-
-
-    /* =========================================
-       SETTINGS
-    ========================================= */
-
-    // Ad cycle timer
-    const AD_DURATION = 12;
-
-    // Change this if you want a different
-    // interval between advertisements.
-    const NEXT_AD_DELAY = 1 * 6;
-
-
-    /* =========================================
-       ELEMENTS
-    ========================================= */
-
-    const showAdBtn =
-      document.getElementById("showAdBtn");
-
-    const statusText =
-      document.getElementById("statusText");
-
-    const timer =
-      document.getElementById("timer");
-
-
-    let adRunning = false;
-    let countdownTimer = null;
-    let nextAdTimer = null;
-
-
-    /* =========================================
-       SHOW AD
-    ========================================= */
-
-    function showAd() {
-
-      if (adRunning) {
-        return;
-      }
-
-      adRunning = true;
-
-      showAdBtn.disabled = true;
-
-      statusText.textContent =
-        "Advertisement is showing...";
-
-      timer.textContent =
-        "Ad time: 12 seconds";
-
-
-      /*
-       * CALL YOUR SDK
-       */
-
-      if (
-        typeof window.show_12308086 ===
-        "function"
-      ) {
-
-        try {
-
-          window.show_12308086();
-
-        } catch (error) {
-
-          console.error(
-            "Ad SDK error:",
-            error
-          );
-
-        }
-
-      } else {
-
-        console.error(
-          "show_12308086() not available"
-        );
-
-        statusText.textContent =
-          "Ad SDK is not ready.";
-
-      }
-
-
-      /* =======================================
-         12 SECOND CYCLE
-      ======================================= */
-
-      let remaining = AD_DURATION;
-
-      countdownTimer =
-        setInterval(() => {
-
-          remaining--;
-
-          timer.textContent =
-            "Ad time: " +
-            remaining +
-            " seconds";
-
-
-          if (remaining <= 0) {
-
-            clearInterval(countdownTimer);
-
-            countdownTimer = null;
-
-            finishAd();
-
-          }
-
-        }, 1000);
-
-    }
-
-
-    /* =========================================
-       FINISH CURRENT AD CYCLE
-    ========================================= */
-
-    function finishAd() {
-
-      adRunning = false;
-
-      statusText.textContent =
-        "Ad cycle completed.";
-
-      timer.textContent =
-        "Next advertisement is scheduled.";
-
-      /*
-       * IMPORTANT:
-       *
-       * This does NOT force-close the
-       * third-party ad window.
-       *
-       * The SDK controls its own ad UI.
-       */
-
-      startNextAdTimer();
-
-    }
-
-
-    /* =========================================
-       NEXT AD TIMER
-    ========================================= */
-
-    function startNextAdTimer() {
-
-      let remaining =
-        NEXT_AD_DELAY;
-
-
-      if (nextAdTimer !== null) {
-
-        clearInterval(nextAdTimer);
-
-      }
-
-
-      timer.textContent =
-        formatTime(remaining);
-
-
-      nextAdTimer =
-        setInterval(() => {
-
-          remaining--;
-
-          timer.textContent =
-            "Next ad in " +
-            formatTime(remaining);
-
-
-          if (remaining <= 0) {
-
-            clearInterval(nextAdTimer);
-
-            nextAdTimer = null;
-
-            showAd();
-
-          }
-
-        }, 1000);
-
-    }
-
-
-    /* =========================================
-       FORMAT TIMER
-    ========================================= */
-
-    function formatTime(seconds) {
-
-      const minutes =
-        Math.floor(seconds / 60);
-
-      const secs =
-        seconds % 60;
-
-
-      return (
-        "Next ad in " +
-        String(minutes).padStart(2, "0") +
-        ":" +
-        String(secs).padStart(2, "0")
-      );
-
-    }
-
-
-    /* =========================================
-       BUTTON
-    ========================================= */
-
-    showAdBtn.addEventListener(
-      "click",
-      function () {
-
-        showAd();
-
-      }
-    );
-
-
-    /* =========================================
-       INITIAL STATE
-    ========================================= */
-
-    statusText.textContent =
-      "Ready to show advertisement.";
-
-    timer.textContent =
-      "Press Show Ad to start.";
-
-
-  </script>
-
+    statusEl.textContent = 'অ্যাড চলছে...';
+    Promise.resolve(fn())
+      .catch(() => {})            // অ্যাড না পেলেও লুপ চলবে
+      .finally(scheduleNext);     // অ্যাড বন্ধ হলে পরেরটার জন্য অপেক্ষা
+  }
+
+  function scheduleNext() {
+    const wait = rand(2, 4) * 1000;   // ২–৪ সেকেন্ড পর আবার
+    statusEl.textContent = 'পরের অ্যাড আসছে...';
+    setTimeout(showAd, wait);
+  }
+
+  btn.addEventListener('click', () => {
+    if (started) return;              // একবার ক্লিকেই চালু
+    started = true;
+    btn.disabled = true;
+    showAd();
+  });
+</script>
 </body>
-
 </html>
